@@ -1,5 +1,5 @@
 # Passager (Password Manager)
-Final project for University of Oulu's Faculty of IEEE's **Computer Security** course in 2019.
+Final project for University of Oulu's Faculty of ITEE's **Computer Security** course in 2019.
 
 
 ## What is _Passager_?
