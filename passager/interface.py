@@ -138,8 +138,16 @@ def print_command_usage(command: MenuOptions):
     print("For help, use HELP command")
 
 
-def service_account_add() -> Optional[passager.data_formats.ServiceAccount]:
-    pass
+def _print_service_account(service_account: passager.data_formats.ServiceAccount):
+    print("SERVICE: {}".format(service_account.service_name))
+    print("USERNAME: {}".format(service_account.account_name))
+    print("PASSWORD: {}".format(service_account.service_password))
+
+
+def service_account_added(service_account: passager.data_formats.ServiceAccount):
+    print("Successfully added the following account: ")
+    _print_service_account(service_account)
+    print("")
 
 
 def service_account_change_password():
@@ -153,6 +161,11 @@ def service_account_change_password():
 
 def service_account_remove():
     pass
+
+
+def service_already_exists(service_name: str):
+    print("Service cannot be added: You already have a service account for {}".format(
+          service_name))
 
 
 def train_login():

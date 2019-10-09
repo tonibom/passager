@@ -42,3 +42,24 @@ def run(main_account: passager.data_formats.MainAccount):
                       command_in,
                       parameters_in)
         # TODO: Call the corresponding interface according to the input
+        if command_in == MenuOptions.SERVICE_ACCOUNT_ADD:
+            _logger.debug("Handling service account add")
+            if len(parameters_in) != 3:
+                passager.interface.print_command_usage(MenuOptions.SERVICE_ACCOUNT_ADD)
+                continue
+            service_name = parameters_in[0]
+            service_username = parameters_in[1]
+            service_password = parameters_in[2]
+
+            if service_name in main_account.service_accounts:
+                # The main account already has an account added for this service name
+                passager.interface.service_already_exists(service_name)
+                continue
+
+            service_account = passager.data_formats.ServiceAccount(service_name,
+                                                                   service_username,
+                                                                   service_password)
+            main_account.service_accounts.append(service_account)
+            passager.storage.store_service_account(main_account.main_pass,
+                                                   service_account)
+            passager.interface.service_account_added(service_account)

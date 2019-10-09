@@ -57,6 +57,31 @@ def load_password_hash(user: str, service: str) -> str:
     return ""
 
 
+def load_service_accounts(main_account: passager.data_formats.MainAccount):
+    filenames = _read_filenames()
+    for filename in filenames:
+        # TODO: Derive decryption key from main_pass
+        # TODO: Decrypt filenames using decryption key
+        service_name = filename.rstrip(_FILE_EXT)
+        if len(service_name) == _KEY_LENGTH:
+            # This file didn't contain a service account for this main account
+            continue
+        # Decrypted successfully -> it's a correct service
+        contents = _read_file(filename)
+        # TODO: Decrypt contents
+        try:
+            username = contents[0]
+            password = contents[1]
+        except IndexError:
+            # Problem with valid file detection
+            _logger.warning("Index error in service account load!")
+            continue
+        service = passager.data_formats.ServiceAccount(service_name,
+                                                       username,
+                                                       password)
+        main_account.service_accounts.append(service)
+
+
 def _read_file(filename: str) -> Sequence[str]:
     # TODO: Encrypt filename
     # TODO: Platform indepedency
@@ -95,6 +120,20 @@ def store_password_hash(password: str, user: str, service: str):
     pass
 
 
+def store_service_account(main_pass: str,
+                          service_account: passager.data_formats.ServiceAccount):
+    # TODO: Derive encryption key from main password
+
+    # TODO: Encrypt service name
+    filename = service_account.service_name
+    # TODO: Encrypt password
+    service_password = service_account.service_password
+    # TODO: Encrypt username
+    service_username = service_account.account_name
+
+    _write_file(filename, service_password, service_username)
+
+
 def validate_main_login(username: str, password: str) \
         -> Optional[passager.data_formats.MainAccount]:
     main_account = None
@@ -116,7 +155,16 @@ def validate_main_login(username: str, password: str) \
             # TODO: Fix
             salt = "AAAA"
             main_account = passager.data_formats.MainAccount(username,
-                                                             actual_password,
+                                                             password,
                                                              salt)
 
     return main_account
+
+
+def _write_file(filename, password, accountname):
+    # TODO: Encrypt filename
+    # TODO: Platform indepedency
+    file_path = os.path.dirname(os.path.realpath(__file__)) + "/accounts/" + filename + _FILE_EXT
+    with open(file_path, "w") as source:
+        source.write(password + "\n")
+        source.write(accountname + "\n")
