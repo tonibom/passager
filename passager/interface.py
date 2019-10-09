@@ -6,14 +6,68 @@ here and returned back to the caller.
 Currently the only implementation is going to be CLI, but GUI might be implemented
 later on.
 """
-from typing import Optional
+import getpass
+
+from typing import Optional, Sequence, Tuple
 
 import passager.data_formats
 
+from passager.data_formats import MenuOptions
 
-def login() -> Optional[passager.data_formats.MainAccount]:
-    # Optional, because might fail
-    pass
+_MENU_COMMANDS = {
+    "HELP": MenuOptions.HELP,
+    "H": MenuOptions.HELP,
+    "?": MenuOptions.HELP,
+
+    "TRAINING": MenuOptions.TRAINING,
+    "TRAIN": MenuOptions.TRAINING,
+    "T": MenuOptions.TRAINING,
+
+    "SERVICE_ACCOUNT_ADD": MenuOptions.SERVICE_ACCOUNT_ADD,
+    "SRV-ADD": MenuOptions.SERVICE_ACCOUNT_ADD,
+
+    "SERVICE_ACCOUNT_CHANGE_PASSWORD": MenuOptions.SERVICE_ACCOUNT_CHANGE_PASSWORD,
+    "SRV-CHANGE-PW": MenuOptions.SERVICE_ACCOUNT_CHANGE_PASSWORD,
+
+    "SERVICE_ACCOUNT_REMOVE": MenuOptions.SERVICE_ACCOUNT_REMOVE,
+    "SRV-RM": MenuOptions.SERVICE_ACCOUNT_REMOVE,
+
+    "MAIN_ACCOUNT_CHANGE_PASSWORD": MenuOptions.MAIN_ACCOUNT_CHANGE_PASSWORD,
+    "MAIN-CHANGE-PW": MenuOptions.MAIN_ACCOUNT_CHANGE_PASSWORD,
+
+    "LOGOUT": MenuOptions.LOGOUT,
+    "EXIT": MenuOptions.LOGOUT,
+    "QUIT": MenuOptions.LOGOUT,
+    "Q": MenuOptions.LOGOUT,
+    "SHUTDOWN": MenuOptions.LOGOUT,
+    "CLOSE": MenuOptions.LOGOUT,
+}
+_PADDING = 32
+
+
+def invalid_login():
+    print("\nInvalid login username or password")
+
+
+def login() -> Tuple[str, str]:
+    print("\nWelcome to Passager!")
+    print("Please enter your Main Account credentials to log in\n")
+    username, password = _login_input()
+    return username, password
+
+
+def _login_input(known_username: str = None) -> Tuple[str, str]:
+    if known_username is not None:
+        print("Username: {}".format(known_username))
+        username = known_username
+    else:
+        username = input("Username: ")
+    password = getpass.getpass("Password: ")
+    return username, password
+
+
+def login_successful(username: str):
+    print("Logged in successfully as {}!\n".format(username))
 
 
 def logout():
@@ -37,11 +91,7 @@ def main_account_change_password():
     pass
 
 
-def main_account_remove():
-    pass
-
-
-def main_menu() -> Optional[str]:
+def main_menu() -> Optional[Tuple[MenuOptions, Sequence[str]]]:
     """User interface for the main menu structure. Provides the user the options
     to choose from and asks what the user wants to do. User inputs their choice,
     this selection is validated and responded to.
@@ -51,7 +101,18 @@ def main_menu() -> Optional[str]:
         Logout
         Train password
     """
-    return ""
+
+    print("\n{} MAIN MENU {}\n".format(_PADDING * "=", _PADDING * "="))
+
+    while True:
+        user_input = input("Enter command >").split(" ")
+        input_command = user_input[0]
+        input_parameters = user_input[1:]
+        print("")
+        if input_command.upper() in _MENU_COMMANDS.keys():
+            return _MENU_COMMANDS[input_command.upper()], input_parameters
+        else:
+            print("Invalid command")
 
 
 def print_help():

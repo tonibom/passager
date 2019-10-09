@@ -9,21 +9,21 @@ SALT_LENGTH = 32
 
 
 class MenuOptions(enum.IntEnum):
-    TRAINING = 0
-    SERVICE_ACCOUNT_ADD = 1
-    SERVICE_ACCOUNT_CHANGE_PASSWORD = 2
-    SERVICE_ACCOUNT_REMOVE = 3
-    MAIN_ACCOUNT_ADD = 4
+    HELP = 0
+    TRAINING = 1
+    SERVICE_ACCOUNT_ADD = 2
+    SERVICE_ACCOUNT_CHANGE_PASSWORD = 3
+    SERVICE_ACCOUNT_REMOVE = 4
     MAIN_ACCOUNT_CHANGE_PASSWORD = 5
     MAIN_ACCOUNT_REMOVE = 6
     LOGOUT = 7
 
 
 class MainAccount:
-    def __init__(self, account_name: str, password_hash: str, salt: str):
+    def __init__(self, account_name: str, main_pass: str, salt: str):
         self.service_accounts = []
-        self.name = account_name
-        self.password_hash = password_hash
+        self.account_name = account_name
+        self.main_pass = main_pass
         self.salt = salt
 
     @staticmethod
@@ -42,10 +42,10 @@ class MainAccount:
 
 
 class ServiceAccount:
-    def __init__(self, service_name: str, account_name: str, password_hash: str):
+    def __init__(self, service_name: str, account_name: str, service_password: str):
         self.service_name = service_name
         self.account_name = account_name
-        self.password_hash = password_hash
+        self.service_password = service_password
 
 
 def slow_hash_compare():
