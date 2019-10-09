@@ -42,6 +42,20 @@ _MENU_COMMANDS = {
     "SHUTDOWN": MenuOptions.LOGOUT,
     "CLOSE": MenuOptions.LOGOUT,
 }
+_MENU_COMMAND_INFO = {
+    MenuOptions.HELP: 0,
+    MenuOptions.TRAINING: 1,
+    MenuOptions.SERVICE_ACCOUNT_ADD: {
+        "description": "add a service account for which you wish to save a password and train login",
+        "usage": "srv-add <SERVICE NAME> <ACCOUNT NAME> <PASSWORD>",
+        "example": "srv-add Google example@gmail.com h0rr1bl3p455w0rd",
+    },
+    MenuOptions.SERVICE_ACCOUNT_CHANGE_PASSWORD: 3,
+    MenuOptions.SERVICE_ACCOUNT_REMOVE: 4,
+    MenuOptions.MAIN_ACCOUNT_CHANGE_PASSWORD: 5,
+    MenuOptions.MAIN_ACCOUNT_REMOVE: 6,
+    MenuOptions.LOGOUT: 7,
+}
 _PADDING = 32
 
 
@@ -117,6 +131,11 @@ def main_menu() -> Optional[Tuple[MenuOptions, Sequence[str]]]:
 
 def print_help():
     pass
+
+
+def print_command_usage(command: MenuOptions):
+    print("Usage: " + _MENU_COMMAND_INFO[command]["usage"])
+    print("For help, use HELP command")
 
 
 def service_account_add() -> Optional[passager.data_formats.ServiceAccount]:
