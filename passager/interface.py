@@ -32,6 +32,10 @@ _MENU_COMMANDS = {
     "SERVICE_ACCOUNT_REMOVE": MenuOptions.SERVICE_ACCOUNT_REMOVE,
     "SRV-RM": MenuOptions.SERVICE_ACCOUNT_REMOVE,
 
+    "SERVICE_ACCOUNTS": MenuOptions.SERVICE_ACCOUNTS,
+    "SRV-ACC": MenuOptions.SERVICE_ACCOUNTS,
+    "ACCOUNTS": MenuOptions.SERVICE_ACCOUNTS,
+
     "MAIN_ACCOUNT_CHANGE_PASSWORD": MenuOptions.MAIN_ACCOUNT_CHANGE_PASSWORD,
     "MAIN-CHANGE-PW": MenuOptions.MAIN_ACCOUNT_CHANGE_PASSWORD,
 
@@ -52,6 +56,11 @@ _MENU_COMMAND_INFO = {
     },
     MenuOptions.SERVICE_ACCOUNT_CHANGE_PASSWORD: 3,
     MenuOptions.SERVICE_ACCOUNT_REMOVE: 4,
+    MenuOptions.SERVICE_ACCOUNTS: {
+        "description": "display all service accounts created for this main account",
+        "usage": "accounts",
+        "example": "accounts",
+    },
     MenuOptions.MAIN_ACCOUNT_CHANGE_PASSWORD: 5,
     MenuOptions.MAIN_ACCOUNT_REMOVE: 6,
     MenuOptions.LOGOUT: 7,
@@ -161,6 +170,13 @@ def service_account_change_password():
 
 def service_account_remove():
     pass
+
+
+def service_accounts(main_account: passager.data_formats.MainAccount):
+    print("{} SERVICE ACCOUNTS {}".format(_PADDING * "-", _PADDING * "-"))
+    for account in main_account.service_accounts:
+        _print_service_account(account)
+        print("")
 
 
 def service_already_exists(service_name: str):

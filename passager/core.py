@@ -63,3 +63,7 @@ def run(main_account: passager.data_formats.MainAccount):
             passager.storage.store_service_account(main_account.main_pass,
                                                    service_account)
             passager.interface.service_account_added(service_account)
+
+        elif command_in == MenuOptions.SERVICE_ACCOUNTS:
+            _logger.debug("Handling service accounts print")
+            passager.interface.service_accounts(main_account)
