@@ -7,6 +7,7 @@ Currently the only implementation is going to be CLI, but GUI might be implement
 later on.
 """
 import getpass
+import logging
 
 from typing import Optional, Sequence, Tuple
 
@@ -52,6 +53,7 @@ _MENU_COMMAND_INFO = {
         "description": "display information about available commands",
         "usage": "help <COMMAND>",
         "example": "help training",
+        "parameter-count": (0, 1),
     },
     MenuOptions.TRAINING: 1,
     MenuOptions.SERVICE_ACCOUNT_ADD: {
@@ -59,6 +61,7 @@ _MENU_COMMAND_INFO = {
         "description": "add a service account for which you wish to save a password and train login",
         "usage": "srv-add <SERVICE NAME> <ACCOUNT NAME> <PASSWORD>",
         "example": "srv-add Google example@gmail.com h0rr1bl3p455w0rd",
+        "parameter-count": (3, ),
     },
     MenuOptions.SERVICE_ACCOUNT_CHANGE_PASSWORD: 3,
     MenuOptions.SERVICE_ACCOUNT_REMOVE: 4,
@@ -67,12 +70,15 @@ _MENU_COMMAND_INFO = {
         "description": "display all service accounts created for this main account",
         "usage": "accounts",
         "example": "accounts",
+        "parameter-count": (0, ),
     },
     MenuOptions.MAIN_ACCOUNT_CHANGE_PASSWORD: 5,
     MenuOptions.MAIN_ACCOUNT_REMOVE: 6,
     MenuOptions.LOGOUT: 7,
 }
 _PADDING = 32
+
+_logger = logging.getLogger(__name__)
 
 
 def invalid_command_for_help(command: str):
@@ -85,6 +91,25 @@ def invalid_command_for_help(command: str):
 
 def invalid_login():
     print("\nInvalid login username or password")
+
+
+def invalid_parameter_count(command: MenuOptions, parameters: Sequence[str]):
+    try:
+        # TODO: Remove this check when all commands have been implemented
+        expected_count = _MENU_COMMAND_INFO[command]["parameter-count"]
+    except TypeError:
+        _logger.warning("Tried to access unimplemented command's parameter count")
+        return
+    expected_count = [str(a) for a in expected_count]
+    if len(expected_count) != 1:
+        # There are multiple valid parameter counts
+        expected_count = " or ".join(expected_count)
+    else:
+        expected_count = expected_count[0]
+    print("Invalid number of parameters! ({})".format(len(parameters)))
+    print("The command {} takes {} parameters.\n".format(command.name,
+                                                         expected_count))
+    print_command_usage(command)
 
 
 def login() -> Tuple[str, str]:

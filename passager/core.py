@@ -45,7 +45,8 @@ def run(main_account: passager.data_formats.MainAccount):
         if command_in == MenuOptions.SERVICE_ACCOUNT_ADD:
             _logger.debug("Handling service account add")
             if len(parameters_in) != 3:
-                passager.interface.print_command_usage(MenuOptions.SERVICE_ACCOUNT_ADD)
+                passager.interface.invalid_parameter_count(command_in,
+                                                           parameters_in)
                 continue
             service_name = parameters_in[0]
             service_username = parameters_in[1]
@@ -66,12 +67,19 @@ def run(main_account: passager.data_formats.MainAccount):
 
         elif command_in == MenuOptions.SERVICE_ACCOUNTS:
             _logger.debug("Handling service accounts print")
+            if len(parameters_in) != 0:
+                passager.interface.invalid_parameter_count(command_in,
+                                                           parameters_in)
             passager.interface.service_accounts(main_account)
 
         elif command_in == MenuOptions.HELP:
             _logger.debug("Handling help")
             command_help = None
-            if len(parameters_in) >= 1:
+            if len(parameters_in) not in [0, 1]:
+                passager.interface.invalid_parameter_count(command_in,
+                                                           parameters_in)
+                continue
+            if len(parameters_in) == 1:
                 try:
                     command_help = passager.interface.MENU_COMMANDS[parameters_in[0].upper()]
                 except KeyError:
