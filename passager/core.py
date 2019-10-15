@@ -67,3 +67,14 @@ def run(main_account: passager.data_formats.MainAccount):
         elif command_in == MenuOptions.SERVICE_ACCOUNTS:
             _logger.debug("Handling service accounts print")
             passager.interface.service_accounts(main_account)
+
+        elif command_in == MenuOptions.HELP:
+            _logger.debug("Handling help")
+            command_help = None
+            if len(parameters_in) >= 1:
+                try:
+                    command_help = passager.interface.MENU_COMMANDS[parameters_in[0].upper()]
+                except KeyError:
+                    passager.interface.invalid_command_for_help(parameters_in[0])
+                    continue
+            passager.interface.print_help(command_help)

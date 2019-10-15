@@ -14,7 +14,7 @@ import passager.data_formats
 
 from passager.data_formats import MenuOptions
 
-_MENU_COMMANDS = {
+MENU_COMMANDS = {
     "HELP": MenuOptions.HELP,
     "H": MenuOptions.HELP,
     "?": MenuOptions.HELP,
@@ -47,9 +47,15 @@ _MENU_COMMANDS = {
     "CLOSE": MenuOptions.LOGOUT,
 }
 _MENU_COMMAND_INFO = {
-    MenuOptions.HELP: 0,
+    MenuOptions.HELP: {
+        "name": ("HELP", "aliases: H, ?"),
+        "description": "display information about available commands",
+        "usage": "help <COMMAND>",
+        "example": "help training",
+    },
     MenuOptions.TRAINING: 1,
     MenuOptions.SERVICE_ACCOUNT_ADD: {
+        "name": ("SRV-ADD",  "aliases: SERVICE_ACCOUNT_ADD"),
         "description": "add a service account for which you wish to save a password and train login",
         "usage": "srv-add <SERVICE NAME> <ACCOUNT NAME> <PASSWORD>",
         "example": "srv-add Google example@gmail.com h0rr1bl3p455w0rd",
@@ -57,6 +63,7 @@ _MENU_COMMAND_INFO = {
     MenuOptions.SERVICE_ACCOUNT_CHANGE_PASSWORD: 3,
     MenuOptions.SERVICE_ACCOUNT_REMOVE: 4,
     MenuOptions.SERVICE_ACCOUNTS: {
+        "name": ("ACCOUNTS",  "aliases: SRV-ACC, SERVICE_ACCOUNTS"),
         "description": "display all service accounts created for this main account",
         "usage": "accounts",
         "example": "accounts",
@@ -66,6 +73,14 @@ _MENU_COMMAND_INFO = {
     MenuOptions.LOGOUT: 7,
 }
 _PADDING = 32
+
+
+def invalid_command_for_help(command: str):
+    print("'{}' is not a valid command. ".format(command), end="")
+    print("For full help list, do not enter any parameters.")
+    print("\n---------- The help command ----------")
+    print_help(MenuOptions.HELP)
+    _print_available_commands()
 
 
 def invalid_login():
@@ -132,19 +147,54 @@ def main_menu() -> Optional[Tuple[MenuOptions, Sequence[str]]]:
         input_command = user_input[0]
         input_parameters = user_input[1:]
         print("")
-        if input_command.upper() in _MENU_COMMANDS.keys():
-            return _MENU_COMMANDS[input_command.upper()], input_parameters
+        if input_command.upper() in MENU_COMMANDS.keys():
+            return MENU_COMMANDS[input_command.upper()], input_parameters
         else:
             print("Invalid command")
 
 
-def print_help():
-    pass
+def _print_available_commands():
+    print("\nAvailable commands:")
+    for i in _MENU_COMMAND_INFO.values():
+        if type(i) is not int:
+            # TODO: fix when all commands have been added
+            print(i["name"])
 
 
 def print_command_usage(command: MenuOptions):
     print("Usage: " + _MENU_COMMAND_INFO[command]["usage"])
-    print("For help, use HELP command")
+    print("For help, run 'HELP {}'".format(_MENU_COMMAND_INFO[command]["name"][0]))
+
+
+def print_help(command_in: MenuOptions = None):
+
+    def print_command_info(cmd: MenuOptions):
+        name = _MENU_COMMAND_INFO[cmd]["name"][0] \
+               + " | " \
+               + _MENU_COMMAND_INFO[cmd]["name"][1]
+        print("Name: " + name)
+        print("Usage: " + _MENU_COMMAND_INFO[cmd]["usage"])
+        print("Example: " + _MENU_COMMAND_INFO[cmd]["example"])
+
+    if command_in is not None:
+        # TODO: Change when all commands implemented
+        if type(_MENU_COMMAND_INFO[command_in]) == dict:
+            print_command_info(command_in)
+            return
+        else:
+            print("{} is a valid command, but not yet implemented".format(command_in))
+
+    print("{} HELP {}\n".format(_PADDING * "=", _PADDING * "="))
+    print("The commands are not case sensitive and have multiple aliases.")
+    print("Some commands require parameters to be passed as well.")
+    print("\n++++++++++ COMMANDS ++++++++++\n")
+    for command in _MENU_COMMAND_INFO:
+        # TODO: Change when all commands implemented
+        if type(_MENU_COMMAND_INFO[command]) == dict:
+            print_command_info(command)
+        else:
+            print("{} is a valid command, but not yet implemented".format(command))
+        print("\n")
 
 
 def _print_service_account(service_account: passager.data_formats.ServiceAccount):
