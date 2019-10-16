@@ -9,12 +9,12 @@ import argparse
 import logging
 
 
-import passager.core
-import passager.data_formats
-import passager.interface
-import passager.storage
+import passager.core as core
+import passager.interface as interface
+import passager.storage as storage
 
 _logger = logging.getLogger(__name__)
+
 
 def _account_verification():
     pass
@@ -34,21 +34,21 @@ def _login():
     main_account = None
 
     while True:
-        username, password = passager.interface.login()
+        username, password = interface.login()
         if username is None or password is None:
-            passager.interface.invalid_login()
+            interface.invalid_login()
             continue
 
         # TODO: Use storage to check that args are a legit user login
-        main_account = passager.storage.validate_main_login(username, password)
+        main_account = storage.validate_main_login(username, password)
 
         if main_account is not None:
             # Login successful
             break
-        passager.interface.invalid_login()
+        interface.invalid_login()
 
     # Finally; start core with the authenticated user
-    passager.core.run(main_account)
+    core.run(main_account)
 
 
 def _print_usage():

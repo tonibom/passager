@@ -11,9 +11,7 @@ import logging
 
 from typing import Optional, Sequence, Tuple
 
-import passager.data_formats
-
-from passager.data_formats import MenuOptions
+from passager.data_formats import MainAccount, MenuOptions, ServiceAccount
 
 MENU_COMMANDS = {
     "HELP": MenuOptions.HELP,
@@ -156,7 +154,7 @@ def logout():
     pass
 
 
-def main_account_add() -> Optional[passager.data_formats.MainAccount]:
+def main_account_add() -> Optional[MainAccount]:
     # Optional because might fail
     # Account registration
     pass
@@ -240,13 +238,13 @@ def print_help(command_in: MenuOptions = None):
         print("\n")
 
 
-def _print_service_account(service_account: passager.data_formats.ServiceAccount):
+def _print_service_account(service_account: ServiceAccount):
     print("SERVICE: {}".format(service_account.service_name))
     print("USERNAME: {}".format(service_account.account_name))
     print("PASSWORD: {}".format(service_account.service_password))
 
 
-def service_account_added(service_account: passager.data_formats.ServiceAccount):
+def service_account_added(service_account: ServiceAccount):
     print("Successfully added the following account: ")
     _print_service_account(service_account)
     print("")
@@ -265,7 +263,7 @@ def service_account_removed(service_name: str):
     print("Service account for '{}' was removed successfully!".format(service_name))
 
 
-def service_accounts(main_account: passager.data_formats.MainAccount):
+def service_accounts(main_account: MainAccount):
     print("{} SERVICE ACCOUNTS {}".format(_PADDING * "-", _PADDING * "-"))
     for account in main_account.service_accounts:
         _print_service_account(account)
@@ -284,6 +282,6 @@ def train_login():
     pass
 
 
-def train_login_for(account: passager.data_formats.ServiceAccount):
+def train_login_for(account: ServiceAccount):
     # Actual implementation for the login
     pass
