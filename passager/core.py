@@ -130,8 +130,8 @@ def _service_remove(main_account: MainAccount,
         interface.invalid_parameter_count(command_in,
                                           parameters_in)
         return
-    account_name = parameters_in[0]
-    if account_name not in main_account.service_names():
+    service_name = parameters_in[0]
+    if service_name not in main_account.service_names():
         # If the user has no service set with the requested service name
         interface.invalid_service_account(parameters_in[0])
         return
@@ -141,9 +141,9 @@ def _service_remove(main_account: MainAccount,
         return
 
     # Delete service account from main account runtime list
-    main_account.remove_service_account(account_name)
+    main_account.remove_service_account(service_name)
     # Delete service from disk
     storage.delete_service_account(main_account.main_pass,
-                                   account_name)
+                                   service_name)
     # Notify user
-    interface.service_account_removed(account_name)
+    interface.service_account_removed(service_name)

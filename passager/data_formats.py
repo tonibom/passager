@@ -39,16 +39,21 @@ class MainAccount:
     def remove_service_account(self, service_name: str):
         if service_name not in self.service_names():
             return
-        for account in self.service_accounts:
-            if account.service_name == service_name:
-                self.service_accounts.remove(account)
-                return
+        account = self.service_account_by_name(service_name)
+        if account is not None:
+            self.service_accounts.remove(account)
+            return
 
     def service_names(self) -> Sequence[str]:
         names = []
         for account in self.service_accounts:
             names.append(account.service_name)
         return names
+
+    def service_account_by_name(self, service_name: str) -> Optional["ServiceAccount"]:
+        for account in self.service_accounts:
+            if account.service_name == service_name:
+                return account
 
     @staticmethod
     def validate_password(password: str) -> bool:
