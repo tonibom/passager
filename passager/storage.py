@@ -102,6 +102,17 @@ def _read_filenames() -> Sequence[str]:
     return files_list
 
 
+def delete_main_account(main_account: MainAccount):
+    # TODO: Derive decryption key from username
+    username_file = main_account.account_name + _FILE_EXT
+    file_path = _FILE_DIR + username_file
+
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+    else:
+        _logger.warning("ERROR: Couldn't remove main account file as it doesn't exist!")
+
+
 def delete_service_account(main_pass: str,
                            service_name: str):
     # TODO: Derive encryption key from main password

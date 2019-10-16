@@ -45,6 +45,32 @@ def _help(command_in: MenuOptions, parameters_in: Sequence[str]):
     interface.print_help(command_help)
 
 
+def _main_remove(main_account: MainAccount,
+                 command_in: MenuOptions,
+                 parameters_in: Sequence[str]) -> bool:
+    _logger.debug("Handling main account removal")
+    if len(parameters_in) != 0:
+        interface.invalid_parameter_count(command_in,
+                                          parameters_in)
+        return False
+
+    if not _authenticate_main(main_account):
+        # User couldn't authenticate properly
+        return False
+
+    if interface.main_account_deletion_confirmation(main_account):
+        # Delete the main account's service accounts from disk
+        for account_name in main_account.service_names():
+            storage.delete_service_account(main_account.main_pass, account_name)
+
+        # Delete main account from disk
+        storage.delete_main_account(main_account)
+
+        # Notify user
+        interface.main_account_removed(main_account)
+        return True
+
+
 def run(main_account: MainAccount):
     """Try for modular structure:
         Open interface's main menu
@@ -81,6 +107,11 @@ def run(main_account: MainAccount):
 
         elif command_in == MenuOptions.SERVICE_ACCOUNT_REMOVE:
             _service_remove(main_account, command_in, parameters_in)
+
+        elif command_in == MenuOptions.MAIN_ACCOUNT_REMOVE:
+            if _main_remove(main_account, command_in, parameters_in):
+                # Account deleted, time to shutdown
+                break
 
         elif command_in == MenuOptions.TRAINING:
             _training(main_account, command_in, parameters_in)

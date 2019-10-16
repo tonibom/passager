@@ -38,6 +38,9 @@ MENU_COMMANDS = {
     "MAIN_ACCOUNT_CHANGE_PASSWORD": MenuOptions.MAIN_ACCOUNT_CHANGE_PASSWORD,
     "MAIN-CHANGE-PW": MenuOptions.MAIN_ACCOUNT_CHANGE_PASSWORD,
 
+    "MAIN-ACCOUNT-REMOVE": MenuOptions.MAIN_ACCOUNT_REMOVE,
+    "MAIN-RM": MenuOptions.MAIN_ACCOUNT_REMOVE,
+
     "LOGOUT": MenuOptions.LOGOUT,
     "EXIT": MenuOptions.LOGOUT,
     "QUIT": MenuOptions.LOGOUT,
@@ -83,7 +86,13 @@ _MENU_COMMAND_INFO = {
         "parameter-count": (0, ),
     },
     MenuOptions.MAIN_ACCOUNT_CHANGE_PASSWORD: 5,
-    MenuOptions.MAIN_ACCOUNT_REMOVE: 6,
+    MenuOptions.MAIN_ACCOUNT_REMOVE: {
+        "name": ("MAIN-RM", "aliases: MAIN_ACCOUNT_REMOVE"),
+        "description": "remove the main account along with all of the service accounts associated with it",
+        "usage": "main-rm",
+        "example": "main-rm",
+        "parameter-count": (0, ),
+    },
     MenuOptions.LOGOUT: 7,
 }
 _PADDING = 32
@@ -174,6 +183,30 @@ def main_account_change_password():
     # TODO: Check password strength
 
     pass
+
+
+def main_account_deletion_confirmation(main_account: MainAccount) -> bool:
+    account_count = len(main_account.service_accounts)
+    print("You are trying to delete main account '{}'.\n".format(main_account.account_name))
+    print("You won't be able to log in to this account after this.")
+    print("All of your {} service accounts' login credentials will be deleted.\n".format(account_count))
+    while True:
+        answer = input("Are you sure you want to delete this account (yes/no)? >")
+        if answer.upper() in ["Y", "N"]:
+            print("Please, enter the entire word for confirmation.")
+        elif answer.upper() == "NO":
+            return False
+        elif answer.upper() == "YES":
+            return True
+
+
+def main_account_removed(main_account: MainAccount):
+    name = main_account.account_name
+    service_account_count = len(main_account.service_accounts)
+    print("{} service accounts have been removed successfully!".format(service_account_count))
+    print("\nMain account {} has been removed successfully!".format(name))
+    print("You will now be logged out and the program will shut down.\n")
+    input("{} PRESS ENTER TO CONTINUE {}".format(_PADDING * "=", _PADDING * "="))
 
 
 def main_menu() -> Optional[Tuple[MenuOptions, Sequence[str]]]:
