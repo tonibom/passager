@@ -81,6 +81,13 @@ _PADDING = 32
 _logger = logging.getLogger(__name__)
 
 
+def authentication_login(main_username: str) -> Tuple[str, str]:
+    print("You need to authenticate yourself to use this command.")
+    print("Log in using your main account credentials\n")
+    username, password = _login_input(main_username)
+    return username, password
+
+
 def invalid_command_for_help(command: str):
     print("'{}' is not a valid command. ".format(command), end="")
     print("For full help list, do not enter any parameters.")

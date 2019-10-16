@@ -14,6 +14,20 @@ from passager.data_formats import MenuOptions
 _logger = logging.getLogger(__name__)
 
 
+def _authenticate_main(main_account: passager.data_formats.MainAccount) -> bool:
+    username, password = passager.interface.authentication_login(main_account.account_name)
+    if username is None or password is None:
+        passager.interface.invalid_login()
+        return False
+
+    logged_account = passager.storage.validate_main_login(username, password)
+    if logged_account is None:
+        # Login failed
+        passager.interface.invalid_login()
+        return False
+    return True
+
+
 def run(main_account: passager.data_formats.MainAccount):
     """Try for modular structure:
         Open interface's main menu
