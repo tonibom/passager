@@ -102,6 +102,21 @@ def _read_filenames() -> Sequence[str]:
     return files_list
 
 
+def delete_service_account(main_pass: str,
+                           service_name: str):
+    # TODO: Derive encryption key from main password
+
+    # TODO: Encrypt service name using the key
+    filename = service_name
+
+    file_path = _FILE_DIR + filename + _FILE_EXT
+
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+    else:
+        _logger.warning("ERROR: Couldn't remove service account file as it doesn't exist!")
+
+
 def salt_and_hash_new(password: str) -> str:
     # New as in password hasn't been salted and hashed before
     salt = _generate_salt()

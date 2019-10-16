@@ -64,7 +64,13 @@ _MENU_COMMAND_INFO = {
         "parameter-count": (3, ),
     },
     MenuOptions.SERVICE_ACCOUNT_CHANGE_PASSWORD: 3,
-    MenuOptions.SERVICE_ACCOUNT_REMOVE: 4,
+    MenuOptions.SERVICE_ACCOUNT_REMOVE: {
+        "name": ("SRV-RM", "aliases: SERVICE_ACCOUNT_REMOVE"),
+        "description": "remove the specified service account",
+        "usage": "srv-rm <SERVICE NAME>",
+        "example": "srv-rm Google",
+        "parameter-count": (1, ),
+    },
     MenuOptions.SERVICE_ACCOUNTS: {
         "name": ("ACCOUNTS",  "aliases: SRV-ACC, SERVICE_ACCOUNTS"),
         "description": "display all service accounts created for this main account",
@@ -117,6 +123,11 @@ def invalid_parameter_count(command: MenuOptions, parameters: Sequence[str]):
     print("The command {} takes {} parameters.\n".format(command.name,
                                                          expected_count))
     print_command_usage(command)
+
+
+def invalid_service_account(service_name: str):
+    print("You do not have an account set for service '{}'".format(service_name))
+    print("Use command 'ACCOUNTS' to view your service accounts.")
 
 
 def login() -> Tuple[str, str]:
@@ -250,8 +261,8 @@ def service_account_change_password():
     pass
 
 
-def service_account_remove():
-    pass
+def service_account_removed(service_name: str):
+    print("Service account for '{}' was removed successfully!".format(service_name))
 
 
 def service_accounts(main_account: passager.data_formats.MainAccount):

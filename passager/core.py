@@ -86,6 +86,30 @@ def run(main_account: passager.data_formats.MainAccount):
                                                            parameters_in)
             passager.interface.service_accounts(main_account)
 
+        elif command_in == MenuOptions.SERVICE_ACCOUNT_REMOVE:
+            _logger.debug("Handling service account removal")
+            if len(parameters_in) != 1:
+                passager.interface.invalid_parameter_count(command_in,
+                                                           parameters_in)
+                continue
+            account_name = parameters_in[0]
+            if account_name not in main_account.service_names():
+                # If the user has no service set with the requested service name
+                passager.interface.invalid_service_account(parameters_in[0])
+                continue
+
+            if not _authenticate_main(main_account):
+                # User couldn't authenticate properly
+                continue
+
+            # Delete service account from main account runtime list
+            main_account.remove_service_account(account_name)
+            # Delete service from disk
+            passager.storage.delete_service_account(main_account.main_pass,
+                                                    account_name)
+            # Notify user
+            passager.interface.service_account_removed(account_name)
+
         elif command_in == MenuOptions.HELP:
             _logger.debug("Handling help")
             command_help = None

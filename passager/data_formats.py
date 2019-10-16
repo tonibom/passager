@@ -36,6 +36,14 @@ class MainAccount:
         # TODO: Check that the account name is available
         return MainAccount(name, password_hash, salt)
 
+    def remove_service_account(self, service_name: str):
+        if service_name not in self.service_names():
+            return
+        for account in self.service_accounts:
+            if account.service_name == service_name:
+                self.service_accounts.remove(account)
+                return
+
     def service_names(self) -> Sequence[str]:
         names = []
         for account in self.service_accounts:
