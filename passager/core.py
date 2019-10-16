@@ -51,7 +51,7 @@ def run(main_account: passager.data_formats.MainAccount):
             service_username = parameters_in[1]
             service_password = parameters_in[2]
 
-            if service_name in main_account.service_accounts:
+            if service_name in main_account.service_names():
                 # The main account already has an account added for this service name
                 passager.interface.service_already_exists(service_name)
                 continue

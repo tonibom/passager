@@ -3,7 +3,7 @@
 The module that contains the data formats used internally within the software.
 """
 import enum
-from typing import Optional
+from typing import Optional, Sequence
 
 SALT_LENGTH = 32
 
@@ -35,6 +35,12 @@ class MainAccount:
         """
         # TODO: Check that the account name is available
         return MainAccount(name, password_hash, salt)
+
+    def service_names(self) -> Sequence[str]:
+        names = []
+        for account in self.service_accounts:
+            names.append(account.service_name)
+        return names
 
     @staticmethod
     def validate_password(password: str) -> bool:
