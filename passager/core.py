@@ -15,6 +15,20 @@ from passager.data_formats import MainAccount, MenuOptions, ServiceAccount
 _logger = logging.getLogger(__name__)
 
 
+def _authenticate_main(main_account: MainAccount) -> bool:
+    username, password = interface.authentication_login(main_account.account_name)
+    if username is None or password is None:
+        interface.invalid_login()
+        return False
+
+    logged_account = storage.validate_main_login(username, password)
+    if logged_account is None:
+        # Login failed
+        interface.invalid_login()
+        return False
+    return True
+
+
 def _help(command_in: MenuOptions, parameters_in: Sequence[str]):
     _logger.debug("Handling help")
     command_help = None
@@ -29,20 +43,6 @@ def _help(command_in: MenuOptions, parameters_in: Sequence[str]):
             interface.invalid_command_for_help(parameters_in[0])
             return
     interface.print_help(command_help)
-
-
-def _authenticate_main(main_account: MainAccount) -> bool:
-    username, password = interface.authentication_login(main_account.account_name)
-    if username is None or password is None:
-        interface.invalid_login()
-        return False
-
-    logged_account = storage.validate_main_login(username, password)
-    if logged_account is None:
-        # Login failed
-        interface.invalid_login()
-        return False
-    return True
 
 
 def run(main_account: MainAccount):
