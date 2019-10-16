@@ -13,6 +13,8 @@ from typing import Optional, Sequence
 
 import passager.data_formats
 
+# TODO: Platform independency
+_FILE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/accounts/"
 _FILE_EXT = ".txt"
 # TODO: Adjust
 _KEY_LENGTH = 128
@@ -85,7 +87,7 @@ def load_service_accounts(main_account: passager.data_formats.MainAccount):
 def _read_file(filename: str) -> Sequence[str]:
     # TODO: Encrypt filename
     # TODO: Platform indepedency
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "/accounts/" + filename
+    file_path = _FILE_DIR + filename
     with open(file_path, "r") as source:
         # Remove the newlines
         # TODO: Could it be that this interferes with encryption / hashing?
@@ -94,10 +96,8 @@ def _read_file(filename: str) -> Sequence[str]:
 
 
 def _read_filenames() -> Sequence[str]:
-    # TODO: make more robust & platform independent
-    dir_path = os.path.dirname(os.path.realpath(__file__)) + "/accounts"
 
-    files_list = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
+    files_list = [f for f in os.listdir(_FILE_DIR) if os.path.isfile(os.path.join(_FILE_DIR, f))]
     _logger.debug("Retrieved files list: %s", files_list)
     return files_list
 
@@ -163,8 +163,8 @@ def validate_main_login(username: str, password: str) \
 
 def _write_file(filename, password, accountname):
     # TODO: Encrypt filename
-    # TODO: Platform indepedency
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "/accounts/" + filename + _FILE_EXT
+
+    file_path = _FILE_DIR + filename + _FILE_EXT
     with open(file_path, "w") as source:
         source.write(password + "\n")
         source.write(accountname + "\n")
