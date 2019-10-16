@@ -53,7 +53,13 @@ _MENU_COMMAND_INFO = {
         "example": "help training",
         "parameter-count": (0, 1),
     },
-    MenuOptions.TRAINING: 1,
+    MenuOptions.TRAINING: {
+        "name": ("TRAINING", "aliases: TRAIN, T"),
+        "description": "train logging in to a service with your account credentials",
+        "usage": "training <SERVICE NAME>",
+        "example": "training Google",
+        "parameter-count": (1, ),
+    },
     MenuOptions.SERVICE_ACCOUNT_ADD: {
         "name": ("SRV-ADD",  "aliases: SERVICE_ACCOUNT_ADD"),
         "description": "add a service account for which you wish to save a password and train login",
@@ -275,13 +281,19 @@ def service_already_exists(service_name: str):
           service_name))
 
 
-def train_login():
-    """Menu in which the user chooses the service for which they wish to train
-    logging in and possible parameters for the training.
-    """
-    pass
-
-
 def train_login_for(account: ServiceAccount):
     # Actual implementation for the login
-    pass
+    success_counter = 1
+    print("---------- Login Screen ----------")
+    print("Enter empty field to either to the username or")
+    print("password to return back to the main menu.\n")
+    while True:
+        username, password = _login_input()
+        if username == "" or password == "":
+            return
+        if (username == account.account_name and
+                password == account.service_password):
+            print("Login successful x{}\n".format(success_counter))
+            success_counter += 1
+        else:
+            print("Login failed. To return to main menu, enter empty fields.\n")

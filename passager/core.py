@@ -82,6 +82,9 @@ def run(main_account: MainAccount):
         elif command_in == MenuOptions.SERVICE_ACCOUNT_REMOVE:
             _service_remove(main_account, command_in, parameters_in)
 
+        elif command_in == MenuOptions.TRAINING:
+            _training(main_account, command_in, parameters_in)
+
         elif command_in == MenuOptions.HELP:
             _help(command_in, parameters_in)
 
@@ -147,3 +150,22 @@ def _service_remove(main_account: MainAccount,
                                    service_name)
     # Notify user
     interface.service_account_removed(service_name)
+
+
+def _training(main_account: MainAccount,
+              command_in: MenuOptions,
+              parameters_in: Sequence[str]):
+    _logger.debug("Handling service login training")
+    # TODO: '-c count' ?
+    # TODO: '--just-pass' / '-P' ?
+    if len(parameters_in) != 1:
+        interface.invalid_parameter_count(command_in,
+                                          parameters_in)
+        return
+    service_name = parameters_in[0]
+    if service_name not in main_account.service_names():
+        # If the user has no service set with the requested service name
+        interface.invalid_service_account(parameters_in[0])
+        return
+    service_account = main_account.service_account_by_name(service_name)
+    interface.train_login_for(service_account)
