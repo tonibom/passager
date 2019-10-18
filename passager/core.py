@@ -7,6 +7,7 @@ import logging
 
 from typing import Sequence
 
+import passager.data_formats as data_formats
 import passager.interface as interface
 import passager.storage as storage
 
@@ -102,6 +103,9 @@ def run(main_account: MainAccount):
         if command_in == MenuOptions.SERVICE_ACCOUNT_ADD:
             _service_add(main_account, command_in, parameters_in)
 
+        elif command_in == MenuOptions.SERVICE_ACCOUNT_CHANGE_PASSWORD:
+            _service_change_pw(main_account, command_in, parameters_in)
+
         elif command_in == MenuOptions.SERVICE_ACCOUNTS:
             _service_display(main_account, command_in, parameters_in)
 
@@ -144,6 +148,49 @@ def _service_add(main_account: MainAccount,
     storage.store_service_account(main_account.main_pass,
                                   service_account)
     interface.service_account_added(service_account)
+
+
+def _service_change_pw(main_account, command_in, parameters_in):
+    _logger.debug("Handling service account password change")
+    if len(parameters_in) != 1:
+        interface.invalid_parameter_count(command_in,
+                                          parameters_in)
+        return
+    service_name = parameters_in[0]
+    if service_name not in main_account.service_names():
+        # If the user has no service set with the requested service name
+        interface.invalid_service_account(parameters_in[0])
+        return
+
+    if not _authenticate_main(main_account):
+        # User couldn't authenticate properly
+        return
+    while True:
+        new_password = interface.new_password(service_name)
+        if len(new_password) == 0:
+            # User didn't want to change the password
+            interface.password_change_canceled()
+            break
+        if len(new_password) < data_formats.PASSWORD_MIN_LENGTH:
+            # The password is too short
+            interface.invalid_password_length(len(new_password),
+                                              data_formats.PASSWORD_MIN_LENGTH,
+                                              data_formats.PASSWORD_MAX_LENGTH)
+            continue
+        if len(new_password) > data_formats.PASSWORD_MAX_LENGTH:
+            # The password is too long
+            interface.invalid_password_length(len(new_password),
+                                              data_formats.PASSWORD_MIN_LENGTH,
+                                              data_formats.PASSWORD_MAX_LENGTH)
+            continue
+        # Approximate the strength of the password
+        strength = data_formats.check_password_strength(new_password)
+        # Ask the user whether they wish to confirm the password change
+        if interface.accept_new_password(service_name, new_password, strength):
+            service = main_account.service_account_by_name(service_name)
+            service.change_password(new_password)
+            storage.store_service_account(main_account.main_pass, service)
+            break
 
 
 def _service_display(main_account: MainAccount,

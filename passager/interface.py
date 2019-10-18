@@ -70,7 +70,13 @@ _MENU_COMMAND_INFO = {
         "example": "srv-add Google example@gmail.com h0rr1bl3p455w0rd",
         "parameter-count": (3, ),
     },
-    MenuOptions.SERVICE_ACCOUNT_CHANGE_PASSWORD: 3,
+    MenuOptions.SERVICE_ACCOUNT_CHANGE_PASSWORD: {
+        "name": ("SRV-CHANGE-PW", "aliases: SERVICE_ACCOUNT_CHANGE_PASSWORD"),
+        "description": "change a service account's password",
+        "usage": "srv-change-pw <SERVICE NAME>",
+        "example": "srv-change-pw Google",
+        "parameter-count": (1, ),
+    },
     MenuOptions.SERVICE_ACCOUNT_REMOVE: {
         "name": ("SRV-RM", "aliases: SERVICE_ACCOUNT_REMOVE"),
         "description": "remove the specified service account",
@@ -96,8 +102,32 @@ _MENU_COMMAND_INFO = {
     MenuOptions.LOGOUT: 7,
 }
 _PADDING = 32
+_PW_RANK = {
+    0: "poor",
+    1: "weak",
+    2: "adequate",
+    3: "mediocre",
+    4: "strong",
+    5: "very strong",
+}
 
 _logger = logging.getLogger(__name__)
+
+
+def accept_new_password(account_name: str, password: str, strength: int) -> bool:
+    # account_name can be either service name or main account name
+    print("You've entered password '{}' for account {}.".format(password,
+                                                                account_name))
+    print("This password is considered {}.\n".format(_PW_RANK[strength]))
+    while True:
+        answer = input("Do you wish to make the password change (yes/no)? >")
+        if answer.upper() in ("Y", "YES"):
+            print("Password was changed successfully.")
+            return True
+        elif answer.upper() in ("N", "NO"):
+            print("Password wasn't changed.")
+            return False
+        print("Invalid input.")
 
 
 def authentication_login(main_username: str) -> Tuple[str, str]:
@@ -136,6 +166,16 @@ def invalid_parameter_count(command: MenuOptions, parameters: Sequence[str]):
     print("The command {} takes {} parameters.\n".format(command.name,
                                                          expected_count))
     print_command_usage(command)
+
+
+def invalid_password_length(password_length: int,
+                            recommended_min: int,
+                            recommended_max: int):
+    if password_length > recommended_max:
+        print("The password length exceeds the max limit of {}.".format(recommended_max))
+        print("There's no need to have a password this long.\n")
+    elif password_length < recommended_min:
+        print("The length of a password should be at least {} characters.\n".format(recommended_min))
 
 
 def invalid_service_account(service_name: str):
@@ -231,6 +271,18 @@ def main_menu() -> Optional[Tuple[MenuOptions, Sequence[str]]]:
             return MENU_COMMANDS[input_command.upper()], input_parameters
         else:
             print("Invalid command")
+
+
+def new_password(account_name: str) -> str:
+    # account_name can be either service name or main account name
+    print("Changing password for {}.".format(account_name))
+    print("If you do not want to change the password, just press enter without entering any characters.")
+    password = input("Enter new password: ")
+    return password
+
+
+def password_change_canceled():
+    print("Password change was canceled.")
 
 
 def _print_available_commands():
