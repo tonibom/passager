@@ -146,6 +146,19 @@ def store_password_hash(password: str, user: str, service: str):
     pass
 
 
+def store_main_account(main_account: MainAccount):
+    # TODO: Derive encryption key from main password
+
+    # TODO: Salt & hash the account name into filename
+    filename = main_account.account_name
+    # TODO: Salt & hash the password
+    main_password = main_account.main_pass
+    # TODO: Encrypt account name
+    main_username = main_account.account_name
+
+    _write_file(filename, main_password, main_username)
+
+
 def store_service_account(main_pass: str, service_account: ServiceAccount):
     # TODO: Derive encryption key from main password
 

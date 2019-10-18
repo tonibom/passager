@@ -46,6 +46,47 @@ def _help(command_in: MenuOptions, parameters_in: Sequence[str]):
     interface.print_help(command_help)
 
 
+def _main_change_pw(main_account, command_in, parameters_in):
+    _logger.debug("Handling main account password change")
+    if len(parameters_in) != 0:
+        interface.invalid_parameter_count(command_in,
+                                          parameters_in)
+        return
+
+    if not _authenticate_main(main_account):
+        # User couldn't authenticate properly
+        return
+
+    while True:
+        new_password = interface.new_password(main_account.account_name)
+        if len(new_password) == 0:
+            # User didn't want to change the password
+            interface.password_change_canceled()
+            break
+        if len(new_password) < data_formats.PASSWORD_MIN_LENGTH:
+            # The password is too short
+            interface.invalid_password_length(len(new_password),
+                                              data_formats.PASSWORD_MIN_LENGTH,
+                                              data_formats.PASSWORD_MAX_LENGTH)
+            continue
+        if len(new_password) > data_formats.PASSWORD_MAX_LENGTH:
+            # The password is too long
+            interface.invalid_password_length(len(new_password),
+                                              data_formats.PASSWORD_MIN_LENGTH,
+                                              data_formats.PASSWORD_MAX_LENGTH)
+            continue
+        # Approximate the strength of the password
+        strength = data_formats.check_password_strength(new_password)
+        # Ask the user whether they wish to confirm the password change
+        if interface.accept_new_password(main_account.account_name,
+                                         new_password,
+                                         strength):
+            # TODO: Consider salt & hash
+            main_account.change_password(new_password)
+            storage.store_main_account(main_account)
+            break
+
+
 def _main_remove(main_account: MainAccount,
                  command_in: MenuOptions,
                  parameters_in: Sequence[str]) -> bool:
@@ -111,6 +152,9 @@ def run(main_account: MainAccount):
 
         elif command_in == MenuOptions.SERVICE_ACCOUNT_REMOVE:
             _service_remove(main_account, command_in, parameters_in)
+
+        elif command_in == MenuOptions.MAIN_ACCOUNT_CHANGE_PASSWORD:
+            _main_change_pw(main_account, command_in, parameters_in)
 
         elif command_in == MenuOptions.MAIN_ACCOUNT_REMOVE:
             if _main_remove(main_account, command_in, parameters_in):

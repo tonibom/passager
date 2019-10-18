@@ -30,6 +30,9 @@ class MainAccount:
         self.main_pass = main_pass
         self.salt = salt
 
+    def change_password(self, new_password):
+        self.main_pass = new_password
+
     @staticmethod
     def register_account(name: str, password_hash: str, salt: str)\
             -> Optional["MainAccount"]:

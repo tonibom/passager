@@ -91,7 +91,13 @@ _MENU_COMMAND_INFO = {
         "example": "accounts",
         "parameter-count": (0, ),
     },
-    MenuOptions.MAIN_ACCOUNT_CHANGE_PASSWORD: 5,
+    MenuOptions.MAIN_ACCOUNT_CHANGE_PASSWORD: {
+        "name": ("MAIN-CHANGE-PW", "aliases: MAIN_ACCOUNT_CHANGE_PW"),
+        "description": "change the main account's password",
+        "usage": "main-change-pw",
+        "example": "main-change-pw",
+        "parameter-count": (0, ),
+    },
     MenuOptions.MAIN_ACCOUNT_REMOVE: {
         "name": ("MAIN-RM", "aliases: MAIN_ACCOUNT_REMOVE"),
         "description": "remove the main account along with all of the service accounts associated with it",
