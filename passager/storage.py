@@ -81,6 +81,12 @@ def _generate_salt() -> str:
     return ""
 
 
+def get_usernames() -> Optional[Sequence[str]]:
+    filenames = _read_filenames()
+    # TODO: Fix Bug - if filename ends with t, removes that as well...
+    # Should only remove the .txt, not t.txt
+    filenames = [filename.rstrip(_FILE_EXT) for filename in filenames]
+    return filenames
 
 
 def load_service_accounts(main_account: MainAccount):
@@ -96,6 +102,12 @@ def load_service_accounts(main_account: MainAccount):
             continue
         # Decrypted successfully -> it's a correct service
         contents = _read_file(filename)
+        if len(contents) == 1:
+            _logger.debug("Tried to access main account as service account...")
+            continue
+        if len(contents) != 2:
+            _logger.warning("Unknown account file encountered when loading service accounts!")
+            continue
 
         # TODO: Decrypt contents
         try:
@@ -136,16 +148,14 @@ def salt_and_hash(password: str, salt: str) -> str:
 
 
 def store_main_account(main_account: MainAccount):
-    # TODO: Derive encryption key from main password
 
-    # TODO: Salt & hash the account name into filename
+    if main_account.salt is None:
+        main_account.salt = _generate_salt()
     filename = main_account.account_name
     # TODO: Salt & hash the password
-    main_password = main_account.main_pass
-    # TODO: Encrypt account name
-    main_username = main_account.account_name
+    salted_hash = salt_and_hash(main_account.main_pass, main_account.salt)
 
-    _write_file(filename, main_password, main_username)
+    _write_file(filename, salted_hash)
 
 
 def store_service_account(main_pass: str, service_account: ServiceAccount):
@@ -174,10 +184,11 @@ def validate_main_login(username: str, password: str) -> Optional[MainAccount]:
     if username_file in filenames:
         # Account exists
         contents = _read_file(username_file)
+        if len(contents) != 1:
+            return None
         actual_password = contents[0]
         if _compare_hash(password, actual_password):
             # Login successful
-            account_name = contents[1]
             # TODO: Fix
             salt = "AAAA"
             main_account = MainAccount(username, password, salt)
@@ -185,10 +196,16 @@ def validate_main_login(username: str, password: str) -> Optional[MainAccount]:
     return main_account
 
 
-def _write_file(filename, password, accountname):
-    # TODO: Encrypt filename
+def _write_file(filename: str, password: str, accountname: str = None):
+    # For main accounts filename is the account's name as plain text and
+    # accountname is None.
+    # For service accounts filename is the service's name as encrypted and
+    # accountname is the account's username also as encrypted (with a key
+    # derived from the main account's password).
 
     file_path = _FILE_DIR + filename + _FILE_EXT
     with open(file_path, "w") as source:
         source.write(password + "\n")
-        source.write(accountname + "\n")
+        if accountname is not None:
+            # Only service accounts have this one stored
+            source.write(accountname + "\n")

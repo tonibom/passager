@@ -32,6 +32,8 @@ class MainAccount:
 
     def change_password(self, new_password):
         self.main_pass = new_password
+        # Reset salt so that it shall be generated again
+        self.salt = None
 
     def remove_service_account(self, service_name: str):
         if service_name not in self.service_names():
