@@ -13,9 +13,9 @@ import passager.core as core
 import passager.interface as interface
 import passager.storage as storage
 
+from passager.data_formats import MainAccount
+
 _logger = logging.getLogger(__name__)
-
-
 
 
 def _arg_parser() -> argparse.ArgumentParser:
@@ -49,10 +49,27 @@ def _login():
     core.run(main_account)
 
 
+def _register() -> bool:
 
+    # Get existing usernames
+    unavailable_usernames = storage.get_usernames()
 
-def _register() -> str:
-    pass
+    while True:
+        username = interface.main_account_register_username(unavailable_usernames)
+
+        if username is None:
+            # Registration canceled
+            break
+
+        password = interface.main_account_register_password(username)
+        if password is None:
+            # Registration canceled
+            break
+
+        main_account = MainAccount(username, password)
+        storage.store_main_account(main_account)
+        return True
+    return False
 
 
 def run():
@@ -64,7 +81,9 @@ def run():
     if args.command == "login":
         _login()
     elif args.command == "register":
-        _register()
+        if _register():
+            # If account was registered successfully, enter login screen
+            _login()
 
 
 if __name__ == "__main__":

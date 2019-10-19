@@ -222,6 +222,66 @@ def main_account_deletion_confirmation(main_account: MainAccount) -> bool:
             return True
 
 
+def main_account_register_password(username: str) -> Optional[str]:
+    print("Please enter a password for your Main Account\nEnter empty to cancel.\n")
+    while True:
+        password = input("Password: ")
+
+        if len(password) == 0:
+            # User wanted to cancel
+            print("Canceling main account registration.")
+            return None
+
+        # Make sure the password is of an allowed length
+        if not valid_password_length(password):
+            continue
+
+        strength = data_formats.check_password_strength(password)
+        _display_password_strength(username, password, strength)
+
+        print("Confirm the password. Enter blank to change the password.")
+        while True:
+            # Confirm that the user is happy with the password
+            confirmation = getpass.getpass("Confirm the password: ")
+            if confirmation == "":
+                print("Canceled the password selection.")
+                break
+
+            if confirmation == password:
+                print("Password was chosen successfully.")
+                return password
+
+            print("The passwords didn't match!", end="")
+            print("Please enter the password again for confirmation.\n")
+        return password
+
+
+def main_account_register_username(usernames: Sequence[str]) -> Optional[str]:
+    print("\nWelcome to Passager account registration!")
+    print("Please enter a username for your Main Account\nEnter empty to cancel.\n")
+    while True:
+        username = input("Username: ")
+
+        if len(username) == 0:
+            # User wanted to cancel
+            print("Canceling main account registration.")
+            return None
+
+        # TODO: Platform independency
+        if "/" in username:
+            print("Usernames are not allowed to contain '/' character. ", end="")
+            print("Please select another one.\n")
+            continue
+
+        # Make sure the username is of an allowed length
+        if not _valid_username_length(username):
+            continue
+        if username in usernames:
+            print("That username is already taken. Please select another one.\n")
+            continue
+        return username
+
+
 def main_account_removed(main_account: MainAccount):
     name = main_account.account_name
     service_account_count = len(main_account.service_accounts)
@@ -369,5 +429,18 @@ def valid_password_length(password: str) -> bool:
         # The password is too short
         print("The length of a password should be at least {} characters.\n".format(
             data_formats.PASSWORD_MIN_LENGTH))
+        return False
+    return True
+
+
+def _valid_username_length(username: str) -> bool:
+    if len(username) > data_formats.USERNAME_MAX_LENGTH:
+        print("The username length exceeds the max limit of {} characters.".format(
+            data_formats.USERNAME_MAX_LENGTH))
+        return False
+
+    elif len(username) < data_formats.USERNAME_MIN_LENGTH:
+        print("The length of a username must be at least {} characters.\n".format(
+            data_formats.USERNAME_MIN_LENGTH))
         return False
     return True

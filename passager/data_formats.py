@@ -9,6 +9,8 @@ from typing import Optional, Sequence
 PASSWORD_MAX_LENGTH = 128
 PASSWORD_MIN_LENGTH = 12
 SALT_LENGTH = 32
+USERNAME_MAX_LENGTH = 32
+USERNAME_MIN_LENGTH = 6
 
 
 class MenuOptions(enum.IntEnum):
