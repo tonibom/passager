@@ -24,7 +24,7 @@ class MenuOptions(enum.IntEnum):
 
 
 class MainAccount:
-    def __init__(self, account_name: str, main_pass: str, salt: str):
+    def __init__(self, account_name: str, main_pass: str, salt: str = None):
         self.service_accounts = []
         self.account_name = account_name
         self.main_pass = main_pass
@@ -32,15 +32,6 @@ class MainAccount:
 
     def change_password(self, new_password):
         self.main_pass = new_password
-
-    @staticmethod
-    def register_account(name: str, password_hash: str, salt: str)\
-            -> Optional["MainAccount"]:
-        """Returns account if it can be registered.
-        Otherwise returns None
-        """
-        # TODO: Check that the account name is available
-        return MainAccount(name, password_hash, salt)
 
     def remove_service_account(self, service_name: str):
         if service_name not in self.service_names():
@@ -50,21 +41,16 @@ class MainAccount:
             self.service_accounts.remove(account)
             return
 
-    def service_names(self) -> Sequence[str]:
-        names = []
-        for account in self.service_accounts:
-            names.append(account.service_name)
-        return names
-
     def service_account_by_name(self, service_name: str) -> Optional["ServiceAccount"]:
         for account in self.service_accounts:
             if account.service_name == service_name:
                 return account
 
-    @staticmethod
-    def validate_password(password: str) -> bool:
-        # TODO: Strength check
-        pass
+    def service_names(self) -> Sequence[str]:
+        names = []
+        for account in self.service_accounts:
+            names.append(account.service_name)
+        return names
 
 
 class ServiceAccount:
@@ -102,8 +88,3 @@ def check_password_strength(password: str) -> int:
     elif digits >= 3 and lower_case >= 3 and upper_case >= 3:
         return 3
     return 2
-
-
-def slow_hash_compare():
-    # TODO: Slow string comparison to avoid timing attacks
-    pass

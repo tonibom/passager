@@ -16,8 +16,6 @@ import passager.storage as storage
 _logger = logging.getLogger(__name__)
 
 
-def _account_verification():
-    pass
 
 
 def _arg_parser() -> argparse.ArgumentParser:
@@ -51,8 +49,6 @@ def _login():
     core.run(main_account)
 
 
-def _print_usage():
-    _logger.warning("Shouldn't be able to reach this")
 
 
 def _register() -> str:
@@ -69,8 +65,6 @@ def run():
         _login()
     elif args.command == "register":
         _register()
-    else:
-        _print_usage()
 
 
 if __name__ == "__main__":

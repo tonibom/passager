@@ -63,18 +63,10 @@ def _main_change_pw(main_account, command_in, parameters_in):
             # User didn't want to change the password
             interface.password_change_canceled()
             break
-        if len(new_password) < data_formats.PASSWORD_MIN_LENGTH:
-            # The password is too short
-            interface.invalid_password_length(len(new_password),
-                                              data_formats.PASSWORD_MIN_LENGTH,
-                                              data_formats.PASSWORD_MAX_LENGTH)
+
+        if not interface.valid_password_length(new_password):
             continue
-        if len(new_password) > data_formats.PASSWORD_MAX_LENGTH:
-            # The password is too long
-            interface.invalid_password_length(len(new_password),
-                                              data_formats.PASSWORD_MIN_LENGTH,
-                                              data_formats.PASSWORD_MAX_LENGTH)
-            continue
+
         # Approximate the strength of the password
         strength = data_formats.check_password_strength(new_password)
         # Ask the user whether they wish to confirm the password change
@@ -209,24 +201,17 @@ def _service_change_pw(main_account, command_in, parameters_in):
     if not _authenticate_main(main_account):
         # User couldn't authenticate properly
         return
+
     while True:
         new_password = interface.new_password(service_name)
         if len(new_password) == 0:
             # User didn't want to change the password
             interface.password_change_canceled()
             break
-        if len(new_password) < data_formats.PASSWORD_MIN_LENGTH:
-            # The password is too short
-            interface.invalid_password_length(len(new_password),
-                                              data_formats.PASSWORD_MIN_LENGTH,
-                                              data_formats.PASSWORD_MAX_LENGTH)
+
+        if not interface.valid_password_length(new_password):
             continue
-        if len(new_password) > data_formats.PASSWORD_MAX_LENGTH:
-            # The password is too long
-            interface.invalid_password_length(len(new_password),
-                                              data_formats.PASSWORD_MIN_LENGTH,
-                                              data_formats.PASSWORD_MAX_LENGTH)
-            continue
+
         # Approximate the strength of the password
         strength = data_formats.check_password_strength(new_password)
         # Ask the user whether they wish to confirm the password change

@@ -45,6 +45,32 @@ def _decrypt(string: str, key: str) -> str:
     return string
 
 
+def delete_main_account(main_account: MainAccount):
+    # TODO: Derive decryption key from username
+    username_file = main_account.account_name + _FILE_EXT
+    file_path = _FILE_DIR + username_file
+
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+    else:
+        _logger.warning("ERROR: Couldn't remove main account file as it doesn't exist!")
+
+
+def delete_service_account(main_pass: str,
+                           service_name: str):
+    # TODO: Derive encryption key from main password
+
+    # TODO: Encrypt service name using the key
+    filename = service_name
+
+    file_path = _FILE_DIR + filename + _FILE_EXT
+
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+    else:
+        _logger.warning("ERROR: Couldn't remove service account file as it doesn't exist!")
+
+
 def _encrypt(string: str, key: str) -> str:
     return string
 
@@ -55,8 +81,6 @@ def _generate_salt() -> str:
     return ""
 
 
-def load_password_hash(user: str, service: str) -> str:
-    return ""
 
 
 def load_service_accounts(main_account: MainAccount):
@@ -64,12 +88,15 @@ def load_service_accounts(main_account: MainAccount):
     for filename in filenames:
         # TODO: Derive decryption key from main_pass
         # TODO: Decrypt filenames using decryption key
+        # TODO: Fix Bug - if filename ends with t, removes that as well...
+        # Should only remove the .txt, not t.txt
         service_name = filename.rstrip(_FILE_EXT)
         if len(service_name) == _KEY_LENGTH:
             # This file didn't contain a service account for this main account
             continue
         # Decrypted successfully -> it's a correct service
         contents = _read_file(filename)
+
         # TODO: Decrypt contents
         try:
             username = contents[0]
@@ -102,48 +129,10 @@ def _read_filenames() -> Sequence[str]:
     return files_list
 
 
-def delete_main_account(main_account: MainAccount):
-    # TODO: Derive decryption key from username
-    username_file = main_account.account_name + _FILE_EXT
-    file_path = _FILE_DIR + username_file
-
-    if os.path.isfile(file_path):
-        os.remove(file_path)
-    else:
-        _logger.warning("ERROR: Couldn't remove main account file as it doesn't exist!")
-
-
-def delete_service_account(main_pass: str,
-                           service_name: str):
-    # TODO: Derive encryption key from main password
-
-    # TODO: Encrypt service name using the key
-    filename = service_name
-
-    file_path = _FILE_DIR + filename + _FILE_EXT
-
-    if os.path.isfile(file_path):
-        os.remove(file_path)
-    else:
-        _logger.warning("ERROR: Couldn't remove service account file as it doesn't exist!")
-
-
-def salt_and_hash_new(password: str) -> str:
-    # New as in password hasn't been salted and hashed before
-    salt = _generate_salt()
-    # TODO: hash
-    hashed_pass = password
-    return salt + hashed_pass
-
-
 def salt_and_hash(password: str, salt: str) -> str:
     # TODO: hash
     hashed_pass = password
     return salt + hashed_pass
-
-
-def store_password_hash(password: str, user: str, service: str):
-    pass
 
 
 def store_main_account(main_account: MainAccount):

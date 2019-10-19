@@ -11,6 +11,8 @@ import logging
 
 from typing import Optional, Sequence, Tuple
 
+import passager.data_formats as data_formats
+
 from passager.data_formats import MainAccount, MenuOptions, ServiceAccount
 
 MENU_COMMANDS = {
@@ -122,9 +124,7 @@ _logger = logging.getLogger(__name__)
 
 def accept_new_password(account_name: str, password: str, strength: int) -> bool:
     # account_name can be either service name or main account name
-    print("You've entered password '{}' for account {}.".format(password,
-                                                                account_name))
-    print("This password is considered {}.\n".format(_PW_RANK[strength]))
+    _display_password_strength(account_name, password, strength)
     while True:
         answer = input("Do you wish to make the password change (yes/no)? >")
         if answer.upper() in ("Y", "YES"):
@@ -141,6 +141,12 @@ def authentication_login(main_username: str) -> Tuple[str, str]:
     print("Log in using your main account credentials\n")
     username, password = _login_input(main_username)
     return username, password
+
+
+def _display_password_strength(account_name: str, password: str, strength: int):
+    print("You've entered password '{}' for account {}.".format(password,
+                                                                account_name))
+    print("This password is considered {}.\n".format(_PW_RANK[strength]))
 
 
 def invalid_command_for_help(command: str):
@@ -174,16 +180,6 @@ def invalid_parameter_count(command: MenuOptions, parameters: Sequence[str]):
     print_command_usage(command)
 
 
-def invalid_password_length(password_length: int,
-                            recommended_min: int,
-                            recommended_max: int):
-    if password_length > recommended_max:
-        print("The password length exceeds the max limit of {}.".format(recommended_max))
-        print("There's no need to have a password this long.\n")
-    elif password_length < recommended_min:
-        print("The length of a password should be at least {} characters.\n".format(recommended_min))
-
-
 def invalid_service_account(service_name: str):
     print("You do not have an account set for service '{}'".format(service_name))
     print("Use command 'ACCOUNTS' to view your service accounts.")
@@ -210,32 +206,12 @@ def login_successful(username: str):
     print("Logged in successfully as {}!\n".format(username))
 
 
-def logout():
-    # Python garbage collection regarding the accounts?
-    pass
-
-
-def main_account_add() -> Optional[MainAccount]:
-    # Optional because might fail
-    # Account registration
-    pass
-
-
-def main_account_change_password():
-    # TODO: Ask for password again to validate user
-
-    # These can be put into own function in order to be used in service as well
-    # TODO: Ask for new password
-    # TODO: Check password strength
-
-    pass
-
-
 def main_account_deletion_confirmation(main_account: MainAccount) -> bool:
     account_count = len(main_account.service_accounts)
     print("You are trying to delete main account '{}'.\n".format(main_account.account_name))
     print("You won't be able to log in to this account after this.")
-    print("All of your {} service accounts' login credentials will be deleted.\n".format(account_count))
+    print("All of your {} service accounts' login credentials will be deleted.\n".format(
+        account_count))
     while True:
         answer = input("Are you sure you want to delete this account (yes/no)? >")
         if answer.upper() in ["Y", "N"]:
@@ -347,15 +323,6 @@ def service_account_added(service_account: ServiceAccount):
     print("")
 
 
-def service_account_change_password():
-    # These can be put into own function in order to be used in main as well
-
-    # TODO: Ask for password again to validate user
-    # TODO: Ask for new password
-    # TODO: Check password strength
-    pass
-
-
 def service_account_removed(service_name: str):
     print("Service account for '{}' was removed successfully!".format(service_name))
 
@@ -388,3 +355,19 @@ def train_login_for(account: ServiceAccount):
             success_counter += 1
         else:
             print("Login failed. To return to main menu, enter empty fields.\n")
+
+
+def valid_password_length(password: str) -> bool:
+    if len(password) > data_formats.PASSWORD_MAX_LENGTH:
+        # The password is too long
+        print("The password length exceeds the max limit of {} characters.".format(
+            data_formats.PASSWORD_MAX_LENGTH))
+        print("There's no need to have a password this long.\n")
+        return False
+
+    elif len(password) < data_formats.PASSWORD_MIN_LENGTH:
+        # The password is too short
+        print("The length of a password should be at least {} characters.\n".format(
+            data_formats.PASSWORD_MIN_LENGTH))
+        return False
+    return True
