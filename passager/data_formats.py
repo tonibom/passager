@@ -6,9 +6,12 @@ import enum
 import re
 from typing import Optional, Sequence
 
+# TODO: Adjust
+KEY_LENGTH = 256
 PASSWORD_MAX_LENGTH = 128
 PASSWORD_MIN_LENGTH = 12
-SALT_LENGTH = 32
+# TODO: Adjust
+SALT_LENGTH = 16  # 128 bits
 USERNAME_MAX_LENGTH = 32
 USERNAME_MIN_LENGTH = 6
 
@@ -26,13 +29,13 @@ class MenuOptions(enum.IntEnum):
 
 
 class MainAccount:
-    def __init__(self, account_name: str, main_pass: str, salt: str = None):
+    def __init__(self, account_name: str, main_pass: str, salt: bytes = None):
         self.service_accounts = []
         self.account_name = account_name
         self.main_pass = main_pass
         self.salt = salt
 
-    def change_password(self, new_password):
+    def change_password(self, new_password: str):
         self.main_pass = new_password
         # Reset salt so that it shall be generated again
         self.salt = None
@@ -92,3 +95,11 @@ def check_password_strength(password: str) -> int:
     elif digits >= 3 and lower_case >= 3 and upper_case >= 3:
         return 3
     return 2
+
+
+def decode_to_string(input_bytes: bytes) -> str:
+    return input_bytes.decode("utf-8")
+
+
+def encode_to_bytes(string: str) -> bytes:
+    return string.encode("utf-8")

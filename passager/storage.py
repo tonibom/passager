@@ -11,18 +11,25 @@ import logging
 
 from typing import Optional, Sequence
 
+import passager.data_formats as data_formats
+
 from passager.data_formats import MainAccount, ServiceAccount
+
+import hashlib
+
 
 # TODO: Platform independency
 _FILE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/accounts/"
-_FILE_EXT = ".txt"
+_FILE_EXT = ".account"
 # TODO: Adjust
-_KEY_LENGTH = 128
+_ITERATIONS = 150000
+_MAIN_HASH_NAME = "sha256"
 
 _logger = logging.getLogger(__name__)
 
 
-def _compare_hash(first_hash: str, second_hash: str) -> bool:
+def _compare_hash(first_hash: bytes, second_hash: bytes) -> bool:
+    # TODO: Remove loggers from here
     differences = 0
     if len(first_hash) != len(second_hash):
         _logger.debug("Length mismatch: %s =/= %s", len(first_hash), len(second_hash))
@@ -75,10 +82,8 @@ def _encrypt(string: str, key: str) -> str:
     return string
 
 
-def _generate_salt() -> str:
-    # TODO: generate unique salt
-    # Hint: Use os.urandom
-    return ""
+def _generate_salt() -> bytes:
+    return os.urandom(data_formats.SALT_LENGTH)
 
 
 def get_usernames() -> Optional[Sequence[str]]:
@@ -97,7 +102,7 @@ def load_service_accounts(main_account: MainAccount):
         # TODO: Fix Bug - if filename ends with t, removes that as well...
         # Should only remove the .txt, not t.txt
         service_name = filename.rstrip(_FILE_EXT)
-        if len(service_name) == _KEY_LENGTH:
+        if len(service_name) == data_formats.KEY_LENGTH:
             # This file didn't contain a service account for this main account
             continue
         # Decrypted successfully -> it's a correct service
@@ -111,6 +116,7 @@ def load_service_accounts(main_account: MainAccount):
 
         # TODO: Decrypt contents
         try:
+            # TODO: Fix to consider existing functionality
             username = contents[0]
             password = contents[1]
         except IndexError:
@@ -123,14 +129,14 @@ def load_service_accounts(main_account: MainAccount):
         main_account.service_accounts.append(service)
 
 
-def _read_file(filename: str) -> Sequence[str]:
+def _read_file(filename: str) -> bytes:
     # TODO: Encrypt filename
     # TODO: Platform indepedency
     file_path = _FILE_DIR + filename
-    with open(file_path, "r") as source:
-        # Remove the newlines
-        # TODO: Could it be that this interferes with encryption / hashing?
-        contents = [a.rstrip("\n") for a in source.readlines()]
+    with open(file_path, "rb") as source:
+        contents = source.read()
+        # TODO: Remove
+        print(contents)
     return contents
 
 
@@ -141,9 +147,15 @@ def _read_filenames() -> Sequence[str]:
     return files_list
 
 
-def salt_and_hash(password: str, salt: str) -> str:
-    # TODO: hash
-    hashed_pass = password
+def salt_and_hash(password_in: str, salt: bytes) -> bytes:
+    # Encode into bytes
+    password = data_formats.encode_to_bytes(password_in)
+    # Salt & hash
+    hashed_pass = hashlib.pbkdf2_hmac(_MAIN_HASH_NAME,
+                                      password,
+                                      salt,
+                                      _ITERATIONS,
+                                      dklen=data_formats.KEY_LENGTH)
     return salt + hashed_pass
 
 
@@ -152,7 +164,6 @@ def store_main_account(main_account: MainAccount):
     if main_account.salt is None:
         main_account.salt = _generate_salt()
     filename = main_account.account_name
-    # TODO: Salt & hash the password
     salted_hash = salt_and_hash(main_account.main_pass, main_account.salt)
 
     _write_file(filename, salted_hash)
@@ -171,7 +182,7 @@ def store_service_account(main_pass: str, service_account: ServiceAccount):
     _write_file(filename, service_password, service_username)
 
 
-def validate_main_login(username: str, password: str) -> Optional[MainAccount]:
+def validate_main_login(username: str, password_in: str) -> Optional[MainAccount]:
     main_account = None
 
     # TODO: Derive decryption key from username
@@ -184,19 +195,26 @@ def validate_main_login(username: str, password: str) -> Optional[MainAccount]:
     if username_file in filenames:
         # Account exists
         contents = _read_file(username_file)
-        if len(contents) != 1:
-            return None
-        actual_password = contents[0]
-        if _compare_hash(password, actual_password):
+
+        # TODO: Separate from service accounts
+        # Still leaving this previous implementation here as a reminder
+        # if len(contents) != 1:
+        #     return None
+
+        # Includes the salt
+        actual_password = contents
+        actual_salt = contents[:data_formats.SALT_LENGTH]
+
+        hashed_password_in = salt_and_hash(password_in, actual_salt)
+
+        if _compare_hash(hashed_password_in, actual_password):
             # Login successful
-            # TODO: Fix
-            salt = "AAAA"
-            main_account = MainAccount(username, password, salt)
+            main_account = MainAccount(username, password_in, actual_salt)
 
     return main_account
 
 
-def _write_file(filename: str, password: str, accountname: str = None):
+def _write_file(filename: str, password: bytes, accountname_in: str = None):
     # For main accounts filename is the account's name as plain text and
     # accountname is None.
     # For service accounts filename is the service's name as encrypted and
@@ -204,8 +222,13 @@ def _write_file(filename: str, password: str, accountname: str = None):
     # derived from the main account's password).
 
     file_path = _FILE_DIR + filename + _FILE_EXT
-    with open(file_path, "w") as source:
-        source.write(password + "\n")
+
+    accountname = None
+    if accountname_in is not None:
+        accountname = data_formats.encode_to_bytes(accountname_in)
+
+    with open(file_path, "wb") as source:
+        source.write(password)
         if accountname is not None:
             # Only service accounts have this one stored
-            source.write(accountname + "\n")
+            source.write(accountname)
