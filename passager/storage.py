@@ -20,10 +20,11 @@ import hashlib
 
 # TODO: Platform independency
 _FILE_DIR = os.path.dirname(os.path.realpath(__file__)) + "/accounts/"
-_FILE_EXT = ".account"
 # TODO: Adjust
 _ITERATIONS = 150000
+_MAIN_FILE_EXT = ".account"
 _MAIN_HASH_NAME = "sha256"
+_SERVICE_FILE_EXT = ".service"
 
 _logger = logging.getLogger(__name__)
 
@@ -54,7 +55,7 @@ def _decrypt(string: str, key: str) -> str:
 
 def delete_main_account(main_account: MainAccount):
     # TODO: Derive decryption key from username
-    username_file = main_account.account_name + _FILE_EXT
+    username_file = main_account.account_name + _MAIN_FILE_EXT
     file_path = _FILE_DIR + username_file
 
     if os.path.isfile(file_path):
@@ -70,7 +71,7 @@ def delete_service_account(main_pass: str,
     # TODO: Encrypt service name using the key
     filename = service_name
 
-    file_path = _FILE_DIR + filename + _FILE_EXT
+    file_path = _FILE_DIR + filename + _SERVICE_FILE_EXT
 
     if os.path.isfile(file_path):
         os.remove(file_path)
@@ -87,21 +88,20 @@ def _generate_salt() -> bytes:
 
 
 def get_usernames() -> Optional[Sequence[str]]:
-    filenames = _read_filenames()
-    # TODO: Fix Bug - if filename ends with t, removes that as well...
-    # Should only remove the .txt, not t.txt
-    filenames = [filename.rstrip(_FILE_EXT) for filename in filenames]
+    filenames = _read_filenames(_MAIN_FILE_EXT)
+    # Cut the file extensions out
+    filenames = [filename.split(".")[0] for filename in filenames]
     return filenames
 
 
 def load_service_accounts(main_account: MainAccount):
-    filenames = _read_filenames()
+    filenames = _read_filenames(_SERVICE_FILE_EXT)
     for filename in filenames:
         # TODO: Derive decryption key from main_pass
         # TODO: Decrypt filenames using decryption key
-        # TODO: Fix Bug - if filename ends with t, removes that as well...
-        # Should only remove the .txt, not t.txt
-        service_name = filename.rstrip(_FILE_EXT)
+
+        # Cut the file extension out
+        service_name = filename.split(".")[0]
         if len(service_name) == data_formats.KEY_LENGTH:
             # This file didn't contain a service account for this main account
             continue
@@ -140,9 +140,12 @@ def _read_file(filename: str) -> bytes:
     return contents
 
 
-def _read_filenames() -> Sequence[str]:
+def _read_filenames(extension: str = None) -> Sequence[str]:
 
     files_list = [f for f in os.listdir(_FILE_DIR) if os.path.isfile(os.path.join(_FILE_DIR, f))]
+    if extension is not None:
+        # If file extension is specified, only return filenames with said extension
+        files_list = [f for f in files_list if f.endswith(extension)]
     _logger.debug("Retrieved files list: %s", files_list)
     return files_list
 
@@ -166,6 +169,7 @@ def store_main_account(main_account: MainAccount):
     filename = main_account.account_name
     salted_hash = salt_and_hash(main_account.main_pass, main_account.salt)
 
+    filename += _MAIN_FILE_EXT
     _write_file(filename, salted_hash)
 
 
@@ -179,6 +183,7 @@ def store_service_account(main_pass: str, service_account: ServiceAccount):
     # TODO: Encrypt username
     service_username = service_account.account_name
 
+    filename += _SERVICE_FILE_EXT
     _write_file(filename, service_password, service_username)
 
 
@@ -186,8 +191,8 @@ def validate_main_login(username: str, password_in: str) -> Optional[MainAccount
     main_account = None
 
     # TODO: Derive decryption key from username
-    username_file = username + _FILE_EXT
-    filenames = _read_filenames()
+    username_file = username + _MAIN_FILE_EXT
+    filenames = _read_filenames(_MAIN_FILE_EXT)
     # TODO: Derive decryption key from password
     # TODO: Decrypt filenames with decryption key
 
@@ -221,7 +226,7 @@ def _write_file(filename: str, password: bytes, accountname_in: str = None):
     # accountname is the account's username also as encrypted (with a key
     # derived from the main account's password).
 
-    file_path = _FILE_DIR + filename + _FILE_EXT
+    file_path = _FILE_DIR + filename
 
     accountname = None
     if accountname_in is not None:
