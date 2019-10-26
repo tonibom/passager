@@ -107,7 +107,13 @@ _MENU_COMMAND_INFO = {
         "example": "main-rm",
         "parameter-count": (0, ),
     },
-    MenuOptions.LOGOUT: 7,
+    MenuOptions.LOGOUT: {
+        "name": ("LOGOUT", "aliases: EXIT, QUIT, Q, SHUTDOWN, CLOSE"),
+        "description": "log out of the system: shut down the program",
+        "usage": "logout",
+        "example": "logout",
+        "parameter-count": (0, ),
+    },
 }
 _PADDING = 32
 _PW_RANK = {
@@ -188,7 +194,8 @@ def invalid_service_account(service_name: str):
 
 def login() -> Tuple[str, str]:
     print("\nWelcome to Passager!")
-    print("Please enter your Main Account credentials to log in\n")
+    print("Please enter your Main Account credentials to log in.")
+    print("Enter empty to both to cancel the login and shut down.\n")
     username, password = _login_input()
     return username, password
 
@@ -205,6 +212,12 @@ def _login_input(known_username: str = None) -> Tuple[str, str]:
 
 def login_successful(username: str):
     print("Logged in successfully as {}!\n".format(username))
+
+
+def logout(account_name: str = None):
+    if account_name is not None:
+        print("\nYou've logged out of Passager, {}.".format(account_name))
+    print("\nShutting down Passager.\n")
 
 
 def main_account_deletion_confirmation(main_account: MainAccount) -> bool:
@@ -313,7 +326,7 @@ def main_menu() -> Optional[Tuple[MenuOptions, Sequence[str]]]:
         if input_command.upper() in MENU_COMMANDS.keys():
             return MENU_COMMANDS[input_command.upper()], input_parameters
         else:
-            print("Invalid command")
+            print("Invalid command. Use command 'HELP' for help on commands.")
 
 
 def new_password(account_name: str) -> str:

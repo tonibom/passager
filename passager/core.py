@@ -157,6 +157,7 @@ def run(main_account: MainAccount):
 
         elif command_in == MenuOptions.HELP:
             _help(command_in, parameters_in)
+    interface.logout(main_account.account_name)
 
 
 def _service_add(main_account: MainAccount,
@@ -232,6 +233,11 @@ def _service_display(main_account: MainAccount,
     if len(parameters_in) != 0:
         interface.invalid_parameter_count(command_in,
                                           parameters_in)
+
+    if not _authenticate_main(main_account):
+        # User couldn't authenticate properly
+        return
+
     interface.service_accounts(main_account)
 
 

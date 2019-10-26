@@ -33,11 +33,14 @@ def _login():
 
     while True:
         username, password = interface.login()
-        if username is None or password is None:
+
+        if username == "" and password == "":
+            interface.logout()
+            return
+        if username == "" or password == "":
             interface.invalid_login()
             continue
 
-        # TODO: Use storage to check that args are a legit user login
         main_account = storage.validate_main_login(username, password)
 
         if main_account is not None:
