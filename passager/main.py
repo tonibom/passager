@@ -73,7 +73,7 @@ def _register() -> bool:
 
 
 def run():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     arg_parser = _arg_parser()
     args = arg_parser.parse_args()

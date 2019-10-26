@@ -128,18 +128,19 @@ def accept_new_password(account_name: str, password: str, strength: int) -> bool
     while True:
         answer = input("Do you wish to make the password change (yes/no)? >")
         if answer.upper() in ("Y", "YES"):
-            print("Password was changed successfully.")
+            print("\nPassword was changed successfully.")
             return True
         elif answer.upper() in ("N", "NO"):
-            print("Password wasn't changed.")
+            print("\nPassword wasn't changed.")
             return False
-        print("Invalid input.")
+        print("\nInvalid input.")
 
 
 def authentication_login(main_username: str) -> Tuple[str, str]:
     print("You need to authenticate yourself to use this command.")
     print("Log in using your main account credentials\n")
     username, password = _login_input(main_username)
+    print("")
     return username, password
 
 
@@ -318,7 +319,7 @@ def main_menu() -> Optional[Tuple[MenuOptions, Sequence[str]]]:
 def new_password(account_name: str) -> str:
     # account_name can be either service name or main account name
     print("Changing password for {}.".format(account_name))
-    print("If you do not want to change the password, just press enter without entering any characters.")
+    print("If you do not want to change the password, just press enter without entering any characters.\n")
     password = input("Enter new password: ")
     return password
 

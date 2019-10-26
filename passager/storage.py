@@ -130,13 +130,10 @@ def load_service_accounts(main_account: MainAccount):
 
 
 def _read_file(filename: str) -> bytes:
-    # TODO: Encrypt filename
     # TODO: Platform indepedency
     file_path = _FILE_DIR + filename
     with open(file_path, "rb") as source:
         contents = source.read()
-        # TODO: Remove
-        print(contents)
     return contents
 
 
