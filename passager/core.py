@@ -182,6 +182,7 @@ def _service_add(main_account: MainAccount,
                                      service_password)
     main_account.service_accounts.append(service_account)
     storage.store_service_account(main_account.main_pass,
+                                  main_account.account_name,
                                   service_account)
     interface.service_account_added(service_account)
 
@@ -218,7 +219,9 @@ def _service_change_pw(main_account, command_in, parameters_in):
         if interface.accept_new_password(service_name, new_password, strength):
             service = main_account.service_account_by_name(service_name)
             service.change_password(new_password)
-            storage.store_service_account(main_account.main_pass, service)
+            storage.store_service_account(main_account.main_pass,
+                                          main_account.account_name,
+                                          service)
             break
 
 

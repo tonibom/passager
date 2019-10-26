@@ -2,10 +2,12 @@
 """
 The module that contains the data formats used internally within the software.
 """
+import base64
 import enum
 import re
 from typing import Optional, Sequence
 
+IV_LENGTH = 16
 # TODO: Adjust
 KEY_LENGTH = 256
 PASSWORD_MAX_LENGTH = 128
@@ -97,9 +99,39 @@ def check_password_strength(password: str) -> int:
     return 2
 
 
-def decode_to_string(input_bytes: bytes) -> str:
+# TODO: Fix the naming and the usages of the following functions
+#  The following encoding & decoding functions are used in different places
+#  and for different things. Naming is really bad in this section as these
+#  saw a lot of revisions before they finally worked as intended.
+
+
+def decode_load(input_bytes: bytes) -> str:
+    # Used in
+    #     decrypt_contents for CONTENTS
+    #     decrypt_filename for SERVICE_NAME
+    # AKA LOAD DECRYPTION
     return input_bytes.decode("utf-8")
 
 
-def encode_to_bytes(string: str) -> bytes:
+def decode_store(input_bytes: bytes) -> str:
+    # Used in
+    #     encrypt_filename for ENCRYPTED_FILENAME
+    # AKA STORE ENCRYPTION
+    return base64.b32encode(input_bytes).decode("utf-8")
+
+
+def encode_general(string: str) -> bytes:
+    # Used in
+    #    derive_encryption_key for MAIN_PASS
+    #    load_service_account for INIT_VECTOR
+    #    salt_and_hash for PASSWORD
+    # AKA almost everywhere
     return string.encode("utf-8")
+
+
+def encode_load(string: str) -> bytes:
+    # Used in
+    #    load_service_account for INIT_VECTOR
+    #    load_service_account for ENCRYPTED_SERVICE_NAME
+    # AKA LOAD
+    return base64.b32decode(string.encode("utf-8"))
