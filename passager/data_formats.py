@@ -63,13 +63,20 @@ class MainAccount:
 
 
 class ServiceAccount:
-    def __init__(self, service_name: str, account_name: str, service_password: str):
+    def __init__(self, service_name: str,
+                 account_name: str,
+                 service_password: str,
+                 filename: str = None):
         self.service_name = service_name
         self.account_name = account_name
         self.service_password = service_password
+        self.filename = filename
 
-    def change_password(self, new_password):
+    def change_password(self, new_password: str):
         self.service_password = new_password
+
+    def change_filename(self, new_filename: str):
+        self.filename = new_filename
 
 
 def check_password_strength(password: str) -> int:

@@ -384,6 +384,10 @@ def service_account_added(service_account: ServiceAccount):
     print("")
 
 
+def service_account_not_removed(service_name: str):
+    print("Failed to remove service account for '{}'!".format(service_name))
+
+
 def service_account_removed(service_name: str):
     print("Service account for '{}' was removed successfully!".format(service_name))
 

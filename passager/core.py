@@ -74,6 +74,7 @@ def _main_change_pw(main_account, command_in, parameters_in):
                                          new_password,
                                          strength):
             main_account.change_password(new_password)
+            storage.update_service_accounts(main_account)
             storage.store_main_account(main_account)
             break
 
@@ -93,8 +94,8 @@ def _main_remove(main_account: MainAccount,
 
     if interface.main_account_deletion_confirmation(main_account):
         # Delete the main account's service accounts from disk
-        for account_name in main_account.service_names():
-            storage.delete_service_account(main_account.main_pass, account_name)
+        for service_account in main_account.service_accounts:
+            storage.delete_service_account(service_account.filename)
 
         # Delete main account from disk
         storage.delete_main_account(main_account)
@@ -178,10 +179,11 @@ def _service_add(main_account: MainAccount,
     service_account = ServiceAccount(service_name,
                                      service_username,
                                      service_password)
+    filename = storage.store_service_account(main_account.main_pass,
+                                             main_account.account_name,
+                                             service_account)
+    service_account.change_filename(filename)
     main_account.service_accounts.append(service_account)
-    storage.store_service_account(main_account.main_pass,
-                                  main_account.account_name,
-                                  service_account)
     interface.service_account_added(service_account)
 
 
@@ -241,23 +243,30 @@ def _service_remove(main_account: MainAccount,
         interface.invalid_parameter_count(command_in,
                                           parameters_in)
         return
+
+    if not _authenticate_main(main_account):
+        # User couldn't authenticate properly
+        return
+
     service_name = parameters_in[0]
     if service_name not in main_account.service_names():
         # If the user has no service set with the requested service name
         interface.invalid_service_account(parameters_in[0])
         return
 
-    if not _authenticate_main(main_account):
-        # User couldn't authenticate properly
-        return
-
-    # Delete service account from main account runtime list
-    main_account.remove_service_account(service_name)
     # Delete service from disk
-    storage.delete_service_account(main_account.main_pass,
-                                   service_name)
-    # Notify user
-    interface.service_account_removed(service_name)
+    account = main_account.service_account_by_name(service_name)
+    service_filename = account.filename
+    removal_success = storage.delete_service_account(service_filename)
+
+    if removal_success:
+        # Delete service account from main account runtime list
+        main_account.remove_service_account(service_name)
+        # Notify user
+        interface.service_account_removed(service_name)
+        return
+    # Removal unsuccessful
+    interface.service_account_not_removed(service_name)
 
 
 def _training(main_account: MainAccount,

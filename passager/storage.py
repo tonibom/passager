@@ -112,19 +112,18 @@ def delete_main_account(main_account: MainAccount):
         _logger.warning("ERROR: Couldn't remove main account file as it doesn't exist!")
 
 
-def delete_service_account(main_pass: str,
-                           service_name: str):
-    # TODO: Derive encryption key from main password
+def delete_service_account(service_filename: str) -> bool:
+    if not service_filename.endswith(_SERVICE_FILE_EXT):
+        service_filename += _SERVICE_FILE_EXT
 
-    # TODO: Encrypt service name using the key
-    filename = service_name
-
-    file_path = _FILE_DIR + filename + _SERVICE_FILE_EXT
+    file_path = _FILE_DIR + service_filename
 
     if os.path.isfile(file_path):
         os.remove(file_path)
+        return True
     else:
         _logger.warning("ERROR: Couldn't remove service account file as it doesn't exist!")
+        return False
 
 
 def _derive_encryption_key(main_pass: str, main_accountname: str) -> bytes:
@@ -229,7 +228,8 @@ def _load_service_account(filename: str, key: bytes) -> Optional[ServiceAccount]
                                            init_vector)
     service = ServiceAccount(service_name,
                              username,
-                             password)
+                             password,
+                             filename)
     _logger.info("Loaded service account for %s.", service_name)
     return service
 
@@ -326,6 +326,14 @@ def store_service_account(main_pass: str,
     _logger.debug("STORE - Final filename: %s", filename)
     filename += _SERVICE_FILE_EXT
     _write_file(filename, contents)
+
+
+def update_service_accounts(main_account: MainAccount):
+    for account in main_account.service_accounts:
+        delete_service_account(account.filename)
+        store_service_account(main_account.main_pass,
+                              main_account.account_name,
+                              account)
 
 
 def validate_main_login(username: str, password_in: str) -> Optional[MainAccount]:
