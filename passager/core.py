@@ -73,7 +73,6 @@ def _main_change_pw(main_account, command_in, parameters_in):
         if interface.accept_new_password(main_account.account_name,
                                          new_password,
                                          strength):
-            # TODO: Consider salt & hash
             main_account.change_password(new_password)
             storage.store_main_account(main_account)
             break
@@ -132,7 +131,6 @@ def run(main_account: MainAccount):
                       main_account.account_name,
                       command_in,
                       parameters_in)
-        # TODO: Call the corresponding interface according to the input
         if command_in == MenuOptions.SERVICE_ACCOUNT_ADD:
             _service_add(main_account, command_in, parameters_in)
 

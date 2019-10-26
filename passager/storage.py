@@ -306,7 +306,6 @@ def store_main_account(main_account: MainAccount):
 def store_service_account(main_pass: str,
                           main_accountname: str,
                           service_account: ServiceAccount):
-    # TODO: Derive encryption key from main password
 
     encryption_key = _derive_encryption_key(main_pass, main_accountname)
     initiation_vector = _generate_init_vector()
@@ -332,21 +331,12 @@ def store_service_account(main_pass: str,
 def validate_main_login(username: str, password_in: str) -> Optional[MainAccount]:
     main_account = None
 
-    # TODO: Derive decryption key from username
     username_file = username + _MAIN_FILE_EXT
     filenames = _read_filenames(_MAIN_FILE_EXT)
-    # TODO: Derive decryption key from password
-    # TODO: Decrypt filenames with decryption key
 
-    # TODO: Consider timing attacks
     if username_file in filenames:
         # Account exists
         contents = _read_file(username_file)
-
-        # TODO: Separate from service accounts
-        # Still leaving this previous implementation here as a reminder
-        # if len(contents) != 1:
-        #     return None
 
         # Includes the salt
         actual_password = contents
