@@ -61,9 +61,9 @@ _MENU_COMMAND_INFO = {
     MenuOptions.TRAINING: {
         "name": ("TRAINING", "aliases: TRAIN, T"),
         "description": "train logging in to a service with your account credentials",
-        "usage": "training <SERVICE NAME>",
+        "usage": "training <SERVICE NAME> <OPTIONAL: --no-username>",
         "example": "training Google",
-        "parameter-count": (1, ),
+        "parameter-count": (1, 2),
     },
     MenuOptions.SERVICE_ACCOUNT_ADD: {
         "name": ("SRV-ADD",  "aliases: SERVICE_ACCOUNT_ADD"),
@@ -166,6 +166,10 @@ def invalid_command_for_help(command: str):
 
 def invalid_login():
     print("\nInvalid login username or password")
+
+
+def invalid_parameter(parameter: str):
+    print("\nInvalid parameter for command: '{}'.".format(parameter))
 
 
 def invalid_parameter_count(command: MenuOptions, parameters: Sequence[str]):
@@ -417,14 +421,17 @@ def service_already_exists(service_name: str):
           service_name))
 
 
-def train_login_for(account: ServiceAccount):
+def train_login_for(account: ServiceAccount, no_username: bool):
     # Actual implementation for the login
     success_counter = 1
     print("---------- Login Screen ----------")
     print("Enter empty field to either to the username or")
     print("password to return back to the main menu.\n")
     while True:
-        username, password = _login_input()
+        if no_username:
+            username, password = _login_input(account.account_name)
+        else:
+            username, password = _login_input(account.account_name)
         if username == "" or password == "":
             return
         if (username == account.account_name and

@@ -279,16 +279,25 @@ def _training(main_account: MainAccount,
               command_in: MenuOptions,
               parameters_in: Sequence[str]):
     _logger.debug("Handling service login training")
+    no_username = False
+
     # TODO: '-c count' ?
     # TODO: '--just-pass' / '-P' ?
-    if len(parameters_in) != 1:
+    if len(parameters_in) != 1 and len(parameters_in) != 2:
         interface.invalid_parameter_count(command_in,
                                           parameters_in)
         return
     service_name = parameters_in[0]
+
+    if len(parameters_in) != 1:
+        if parameters_in[1] != "--no-username":
+            interface.invalid_parameter(parameters_in[1])
+            return
+        no_username = True
+
     if service_name not in main_account.service_names():
         # If the user has no service set with the requested service name
         interface.invalid_service_account(parameters_in[0])
         return
     service_account = main_account.service_account_by_name(service_name)
-    interface.train_login_for(service_account)
+    interface.train_login_for(service_account, no_username)
