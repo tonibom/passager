@@ -1,4 +1,4 @@
-#Passager
+# Passager
 
 ## Design
 When I first started working on this project, I did quite a bit of planning and designing before I actually implemented
@@ -15,7 +15,7 @@ way of doing things and certainly did aid me in avoiding the most apparent pitfa
 logic of data storage, I was able to reimplement the affected parts without a major revamp of the system thanks to the
 modular design.
 
-##Password storage
+## Password storage
 
 ### Generally
 The usual way of storing passwords includes [salting] and [hashing] them as it's not necessary to store the actual
@@ -40,7 +40,7 @@ rather than implementing own as they're theoretically proven to be secure (at le
 standard library offers hashing algorithms via the [hashlib] library, I decided to go for that. As dependencies create
 possibilities for security vulnerabilities, it's best to avoid them if possible. The standard library's implementations
 offer what is needed and there's no need to install additional libraries. As for the hash used, I chose **SHA256** as that
-seems to be considered secure[[1]][[2]][[3]]. **PBKDF2_HMAC** offers the resource cost needed to make hash cracking more
+seems to be considered secure. **PBKDF2_HMAC** offers the resource cost needed to make hash cracking more
 tedious and less efficient. I chose 150,000 iterations for the HMAC as that seemed to be a nice number based on the
 testing I did. Sure, my laptop may not be the hash cracking beast that the potential attackers would use, but the login
 times should also be considered from the actual user's point of view as well.
@@ -64,5 +64,4 @@ account's service account files must also be refreshed with the new password.
 [initialization vector]: https://en.wikipedia.org/wiki/Initialization_vector
 [message authentication code]: https://en.wikipedia.org/wiki/Message_authentication_code
 [hashlib]: https://docs.python.org/3/library/hashlib.html
-
 [PyCrypto]: https://www.dlitz.net/software/pycrypto/

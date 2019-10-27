@@ -53,7 +53,11 @@ Instead of providing an actual well-tested and fully secure solution, this softw
 Feel free to use this for your own hobby projects or what-have-you. Just know that this is closer to a proof of concept
 rather than a complete solution in terms of quality.
 
-**This software was developed on Ubuntu and compability with other operating systems is not guaranteed.**
+Another thing to note is that Passager considers only data confidentiality. Data cannot be accessed without proper
+authentication, but it isn't secure from corruption as anyone with access to the files stored is able to modify the
+account files or just straight up delete them (at least in the current storage implementation).
+
+**This software was developed on Ubuntu and compatibility with other operating systems is not guaranteed.**
 
 ## Installation & Usage
 
