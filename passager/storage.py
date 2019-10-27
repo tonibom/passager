@@ -102,7 +102,6 @@ def _decrypt_filename(encrypted_service_name: bytes,
 
 
 def delete_main_account(main_account: MainAccount):
-    # TODO: Derive decryption key from username
     username_file = main_account.account_name + _MAIN_FILE_EXT
     file_path = _FILE_DIR + username_file
 
@@ -240,7 +239,6 @@ def load_service_accounts(main_account: MainAccount):
                                             main_account.account_name)
 
     for filename in filenames:
-        # Cut the file extension out
         try:
             service = _load_service_account(filename, decryption_key)
         except Exception as e:
@@ -305,7 +303,7 @@ def store_main_account(main_account: MainAccount):
 
 def store_service_account(main_pass: str,
                           main_accountname: str,
-                          service_account: ServiceAccount):
+                          service_account: ServiceAccount) -> str:
 
     encryption_key = _derive_encryption_key(main_pass, main_accountname)
     initiation_vector = _generate_init_vector()
@@ -326,14 +324,16 @@ def store_service_account(main_pass: str,
     _logger.debug("STORE - Final filename: %s", filename)
     filename += _SERVICE_FILE_EXT
     _write_file(filename, contents)
+    return filename
 
 
 def update_service_accounts(main_account: MainAccount):
     for account in main_account.service_accounts:
         delete_service_account(account.filename)
-        store_service_account(main_account.main_pass,
-                              main_account.account_name,
-                              account)
+        filename = store_service_account(main_account.main_pass,
+                                         main_account.account_name,
+                                         account)
+        account.change_filename(filename)
 
 
 def validate_main_login(username: str, password_in: str) -> Optional[MainAccount]:

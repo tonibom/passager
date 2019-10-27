@@ -168,8 +168,21 @@ def _service_add(main_account: MainAccount,
         interface.invalid_parameter_count(command_in,
                                           parameters_in)
         return
+
+    # Validate service name length
+    if len(parameters_in[0]) > data_formats.SERVICENAME_MAX_LENGTH:
+        interface.invalid_service_name_length()
+        return
     service_name = parameters_in[0]
+
+    # Validate username length
+    if not interface.valid_username_length(parameters_in[1]):
+        return
     service_username = parameters_in[1]
+
+    # Validate password length
+    if not interface.valid_password_length(parameters_in[2]):
+        return
     service_password = parameters_in[2]
 
     if service_name in main_account.service_names():

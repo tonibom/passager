@@ -76,7 +76,8 @@ def _register() -> bool:
 
 
 def run():
-    logging.basicConfig(level=logging.INFO)
+    # TODO: Turned "off" for now. Add configuration options later on.
+    logging.basicConfig(level=logging.CRITICAL)
 
     arg_parser = _arg_parser()
     args = arg_parser.parse_args()

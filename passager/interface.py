@@ -196,6 +196,11 @@ def invalid_service_account(service_name: str):
     print("Use command 'ACCOUNTS' to view your service accounts.")
 
 
+def invalid_service_name_length():
+    print("The service name length exceeds the max limit of {} characters.".format(
+          data_formats.SERVICENAME_MAX_LENGTH))
+
+
 def login() -> Tuple[str, str]:
     print("\nWelcome to Passager!")
     print("Please enter your Main Account credentials to log in.")
@@ -292,7 +297,7 @@ def main_account_register_username(usernames: Sequence[str]) -> Optional[str]:
             continue
 
         # Make sure the username is of an allowed length
-        if not _valid_username_length(username):
+        if not valid_username_length(username):
             continue
         if username in usernames:
             print("That username is already taken. Please select another one.\n")
@@ -365,6 +370,7 @@ def print_help(command_in: MenuOptions = None):
                + " | " \
                + _MENU_COMMAND_INFO[cmd]["name"][1]
         print("Name: " + name)
+        print("Description: " + _MENU_COMMAND_INFO[cmd]["description"])
         print("Usage: " + _MENU_COMMAND_INFO[cmd]["usage"])
         print("Example: " + _MENU_COMMAND_INFO[cmd]["example"])
 
@@ -425,7 +431,7 @@ def train_login_for(account: ServiceAccount, no_username: bool):
     # Actual implementation for the login
     success_counter = 1
     print("---------- Login Screen ----------")
-    print("Enter empty field to either to the username or")
+    print("Enter empty field either to the username or")
     print("password to return back to the main menu.\n")
     while True:
         if no_username:
@@ -458,7 +464,7 @@ def valid_password_length(password: str) -> bool:
     return True
 
 
-def _valid_username_length(username: str) -> bool:
+def valid_username_length(username: str) -> bool:
     if len(username) > data_formats.USERNAME_MAX_LENGTH:
         print("The username length exceeds the max limit of {} characters.".format(
             data_formats.USERNAME_MAX_LENGTH))
